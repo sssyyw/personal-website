@@ -6,8 +6,15 @@
     <description>Recent content on Yiwei Shi</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 10 May 2026 10:21:53 -0400</lastBuildDate>
+    <lastBuildDate>Sun, 10 May 2026 11:36:30 -0400</lastBuildDate>
     <atom:link href="//localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What Is FDE?</title>
+      <link>//localhost:1313/posts/20260511-what-is-fde/</link>
+      <pubDate>Sun, 10 May 2026 11:36:30 -0400</pubDate>
+      <guid>//localhost:1313/posts/20260511-what-is-fde/</guid>
+      <description>&lt;p&gt;FDE stands for Forward Deployed Engineer, a role first systematized by Palantir. While a traditional product engineer builds a single feature to serve many customers, an FDE provides the diverse range of capabilities required by a single customer.&lt;/p&gt;&#xA;&lt;p&gt;The distinction can be illustrated by a specific scenario: a pre-sales engineer’s job ends when the customer says, &amp;ldquo;This looks like it should work,&amp;rdquo; whereas an FDE’s job begins when the customer says, &amp;ldquo;Then let’s get it running.&amp;rdquo; If your code is live in a customer&amp;rsquo;s production environment and you’re the one handling on-call issues at midnight, you are an FDE.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Python Review 2026: 21 Essential Examples</title>
       <link>//localhost:1313/posts/20260510-python/</link>

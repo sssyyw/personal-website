@@ -2,17 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>//localhost:1313/posts/20260510-multi-turn-llm-workflow/</loc>
-    <lastmod>2026-05-10T01:20:40-04:00</lastmod>
-  </url><url>
     <loc>//localhost:1313/posts/</loc>
-    <lastmod>2026-05-10T01:20:40-04:00</lastmod>
+    <lastmod>2026-05-10T11:36:30-04:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/posts/20260511-what-is-fde/</loc>
+    <lastmod>2026-05-10T11:36:30-04:00</lastmod>
   </url><url>
     <loc>//localhost:1313/</loc>
-    <lastmod>2026-05-10T01:20:40-04:00</lastmod>
+    <lastmod>2026-05-10T11:36:30-04:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/posts/20260509-memory/</loc>
-    <lastmod>2026-05-09T11:58:50-04:00</lastmod>
+    <loc>//localhost:1313/posts/20260510-python/</loc>
+    <lastmod>2026-05-10T10:21:53-04:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/posts/20260509-multi-turn-llm-workflow/</loc>
+    <lastmod>2026-05-09T01:20:40-04:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/posts/20260508-memory/</loc>
+    <lastmod>2026-05-08T11:58:50-04:00</lastmod>
   </url><url>
     <loc>//localhost:1313/categories/</loc>
   </url><url>
