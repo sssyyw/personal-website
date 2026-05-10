@@ -1,5 +1,5 @@
-name = 'hosting-cloudflare-worker'
-compatibility_date = '2025-07-31'
+name = 'personal-website'
+compatibility_date = '2026-05-09'
 
 [build]
 command = 'chmod a+x build.sh && ./build.sh'

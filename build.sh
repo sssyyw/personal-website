@@ -25,8 +25,8 @@ trap cleanup EXIT SIGINT SIGTERM
 main() {
   # Define tool versions
   DART_SASS_VERSION=1.99.0
-  GO_VERSION=1.26.1
-  HUGO_VERSION=0.160.0
+  GO_VERSION=1.26.3
+  HUGO_VERSION=0.161.1
   NODE_VERSION=24.14.1
 
   # Set the build timezone
@@ -80,6 +80,10 @@ main() {
   if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
     git fetch --unshallow
   fi
+
+  # Fetch theme submodule (themes/ananke)
+  echo "Initializing submodules..."
+  git submodule update --init --recursive
 
   # Build the site
   echo "Building the site..."
