@@ -1,4 +1,5 @@
-baseURL = 'https://yiwei.us/'
+baseURL = "/"
+relativeURLs = true
 locale = 'en-us'
 title = 'Yiwei Shi'
 theme = 'paper'
