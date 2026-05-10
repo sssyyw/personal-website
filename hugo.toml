@@ -1,4 +1,14 @@
 baseURL = 'https://example.org/'
 locale = 'en-us'
-title = '11 Thoughts'
-theme = 'ananke'
+title = 'Yiwei Shi'
+theme = 'paper'
+
+[params]
+  # Color mode: "light", "dark", or "auto" (follows system)
+  color = "gray"
+
+  # Twitter / GitHub / Instagram handles shown in footer
+  twitter = "coolworkout"
+  github  = "sssyyw"
+  linkedin = 'yiweishi'
+

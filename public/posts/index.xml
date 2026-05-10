@@ -1,1 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on 11 Thoughts</title><link>https://example.org/posts/</link><description>Recent content in Posts on 11 Thoughts</description><generator>Hugo</generator><language>en-us</language><atom:link href="https://example.org/posts/index.xml" rel="self" type="application/rss+xml"/></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Yiwei Shi</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on Yiwei Shi</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 09 May 2026 12:20:40 -0400</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>My Second Post</title>
+      <link>http://localhost:1313/posts/my-second-post/</link>
+      <pubDate>Sat, 09 May 2026 12:20:40 -0400</pubDate>
+      <guid>http://localhost:1313/posts/my-second-post/</guid>
+      <description>&lt;p&gt;Voice AI only feels natural if conversation moves at the speed of speech. When the network gets in the way, people hear it immediately as awkward pauses, clipped interruptions, or delayed barge-in. That matters for ChatGPT voice, for developers building with the Realtime API, for agents working in interactive workflows, and for models that need to process audio while a user is still talking.&lt;/p&gt;&#xA;&lt;p&gt;At OpenAI’s scale, that translates into three concrete requirements:&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>The AI Memory Supercycle: Who Actually Earns the GPU Dollar in 2026</title>
+      <link>http://localhost:1313/posts/20260510-memory/</link>
+      <pubDate>Sat, 09 May 2026 11:58:50 -0400</pubDate>
+      <guid>http://localhost:1313/posts/20260510-memory/</guid>
+      <description>&lt;h1 id=&#34;the-ai-memory-supercycle-who-actually-earns-the-gpu-dollar-in-2026&#34;&gt;The AI Memory Supercycle: Who Actually Earns the GPU Dollar in 2026&lt;/h1&gt;&#xA;&lt;p&gt;&lt;em&gt;A deep dive into the memory shortage, the Nvidia value chain, and where the profits are flowing&lt;/em&gt;&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;the-setup-something-strange-is-happening-in-memory&#34;&gt;The Setup: Something Strange Is Happening in Memory&lt;/h2&gt;&#xA;&lt;p&gt;If you only watch Nvidia, you are missing the most interesting story in semiconductors right now.&lt;/p&gt;&#xA;&lt;p&gt;In Q1 2026, SK Hynix posted an operating margin of 72%. That number is not a typo. It exceeded both Nvidia and TSMC in the same quarter. For a company that makes commodity DRAM, this is the kind of margin associated with luxury handbags, not memory chips. Industry veterans say profitability like this has not been seen since Microsoft launched Windows 95 in 1995.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

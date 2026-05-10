@@ -1,0 +1,279 @@
+<!doctype html>
+
+
+
+
+
+
+
+<html
+  class="not-ready lg:text-base"
+  style="--bg:#fbfbfb"
+  lang="en-us"
+  dir="ltr"
+><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>Building a Multi-Turn LLM Tool-Calling Pipeline: What I Learned - Yiwei Shi</title>
+
+  
+  <meta name="theme-color" />
+
+  <meta name="description" content="If you&rsquo;ve used the OpenAI, Anthropic, or Bedrock APIs to build something more sophisticated than a chatbot, you&rsquo;ve probably written an agent loop — code that lets the model call tools, receive results, and decide what to do next. I recently built one for a document analysis pipeline at work, and a few things surprised me. This post is a distillation of those lessons, using a generic example.
+The Setup: A Four-Tool Pipeline
+Imagine you&rsquo;re processing a document. For each item the model identifies, you want to:" />
+  <meta name="author" content="Yiwei Shi" /><link rel="preload stylesheet" as="style" href="http://localhost:1313/main.min.e86ae67e01e2d2055106abf72be7357c950191060e5f159f24e2790fd8237e8c.css" integrity="sha256-6GrmfgHi0gVRBqv3K&#43;c1fJUBkQYOXxWfJOJ5D9gjfow=" />
+
+  
+  <link rel="preload" as="image" href="http://localhost:1313/theme.png" />
+
+  
+
+  <link rel="preload" as="image" href="http://localhost:1313/twitter.svg" /><link rel="preload" as="image" href="http://localhost:1313/github.svg" /><link rel="preload" as="image" href="http://localhost:1313/linkedin.svg" />
+
+  <script
+    defer
+    src="http://localhost:1313/highlight.min.js"
+    onload="hljs.initHighlightingOnLoad()"
+  ></script>
+
+  
+  <link
+    rel="icon"
+    href="http://localhost:1313/favicon.ico"
+  />
+  <link
+    rel="apple-touch-icon"
+    href="http://localhost:1313/apple-touch-icon.png"
+  />
+
+  <meta name="generator" content="Hugo 0.161.1">
+</head>
+<body
+    class="bg-(--bg) text-black antialiased duration-200 ease-out [-webkit-tap-highlight-color:transparent] dark:text-white"
+  ><header
+  class="mx-auto flex h-[4.5rem] max-w-(--w) px-8 whitespace-nowrap lg:justify-center"
+>
+  <div class="relative z-50 flex items-center ltr:mr-auto rtl:ml-auto">
+    <a
+      class="-translate-y-[1px] text-2xl font-medium"
+      href="http://localhost:1313/"
+      >Yiwei Shi</a
+    >
+    <div
+      class="btn-dark text-[0px] ltr:ml-4 rtl:mr-4 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.png)_left_center/_auto_theme('spacing.6')_no-repeat] [transition:_background-position_0.4s_steps(5)] dark:[background-position:right]"
+      role="button"
+      aria-label="Dark"
+    ></div>
+  </div>
+
+  <div
+    class="btn-menu relative z-50 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden ltr:-mr-8 rtl:-ml-8"
+    role="button"
+    aria-label="Menu"
+  ></div>
+
+  <script>
+    
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = '#fbfbfb'.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? "rgb(0 0 0 / 85%)" : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full flex-col justify-center bg-(--bg) pb-16 duration-200 select-none lg:static lg:h-auto lg:flex-row lg:bg-transparent! lg:pb-0 lg:transition-none"
+  ><nav
+      class="mt-12 flex justify-center space-x-10 lg:mt-0 lg:items-center ltr:lg:ml-14 rtl:space-x-reverse rtl:lg:mr-14 dark:invert"
+    >
+      <a
+        class="h-7 w-7 text-[0px] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./twitter.svg)"
+        href="https://twitter.com/coolworkout"
+        target="_blank"
+        rel="me"
+      >twitter</a>
+      <a
+        class="h-7 w-7 text-[0px] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./github.svg)"
+        href="https://github.com/sssyyw"
+        target="_blank"
+        rel="me"
+      >github</a>
+      <a
+        class="h-7 w-7 text-[0px] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./linkedin.svg)"
+        href="https://linkedin.com/in/yiweishi"
+        target="_blank"
+        rel="me"
+      >linkedin</a>
+    </nav>
+  </div>
+</header>
+<main
+      class="prose prose-neutral dark:prose-invert relative mx-auto min-h-[calc(100vh-9rem)] max-w-(--w) px-8 pt-14 pb-16"
+    ><article>
+  <header class="mb-14">
+    <h1 class="my-0! pb-2.5">Building a Multi-Turn LLM Tool-Calling Pipeline: What I Learned</h1><div class="text-xs antialiased opacity-60"><time>May 10, 2026</time></div></header>
+
+  <section><p>If you&rsquo;ve used the OpenAI, Anthropic, or Bedrock APIs to build something more sophisticated than a chatbot, you&rsquo;ve probably written an agent loop — code that lets the model call tools, receive results, and decide what to do next. I recently built one for a document analysis pipeline at work, and a few things surprised me. This post is a distillation of those lessons, using a generic example.</p>
+<h2 id="the-setup-a-four-tool-pipeline">The Setup: A Four-Tool Pipeline</h2>
+<p>Imagine you&rsquo;re processing a document. For each item the model identifies, you want to:</p>
+<ol>
+<li>Run a fast keyword search against a reference database</li>
+<li>For items that don&rsquo;t match, run a semantic vector search</li>
+<li>Apply some classification logic to the results</li>
+<li>Save the findings and emit a summary</li>
+</ol>
+<p>Four tools, in order. The model orchestrates them.</p>
+<pre tabindex="0"><code>keyword_search → vector_search → save_results → emit_summary
+</code></pre><h2 id="lesson-1-the-api-is-stateless-your-code-manages-everything">Lesson 1: The API Is Stateless. Your Code Manages Everything.</h2>
+<p>The first thing that surprised me: every API call is completely independent. The model has no memory of previous calls. Your code has to send the entire conversation history — system prompt, tool definitions, and every prior message — on every single call.</p>
+<p>The lifecycle of a five-call pipeline looks like this:</p>
+<pre tabindex="0"><code>Call 1:  system + tools + [user]                                       → tool_use (keyword_search)
+Call 2:  system + tools + [user, asst, TR]                             → tool_use (vector_search)
+Call 3:  system + tools + [user, asst, TR, asst, TR]                   → tool_use (save_results)
+Call 4:  system + tools + [user, asst, TR, asst, TR, asst, TR]         → tool_use (emit_summary)
+Call 5:  system + tools + [user, asst, TR, asst, TR, asst, TR, asst, TR] → end_turn
+</code></pre><p>The system prompt and tool definitions are constant across all five calls. The messages array grows by two entries per turn — the assistant&rsquo;s response and the tool result.</p>
+<p>This is why prompt caching exists. If you&rsquo;re sending the same 8,000-token system prompt five times, you&rsquo;re paying to re-process it five times. Anthropic and Bedrock both let you mark prefixes as cacheable, which can dramatically reduce cost and latency for multi-turn flows.</p>
+<h2 id="lesson-2-the-model-is-the-router">Lesson 2: The Model Is the Router</h2>
+<p>This was the most clarifying realization for me. I initially thought my tools needed routing logic — &ldquo;if keyword search hits, skip vector search.&rdquo; But that&rsquo;s not how it works.</p>
+<p>The model sees the keyword search result and decides what to send to the next tool. If three out of ten items got hits, it sends only the seven non-hits to vector search. If all ten got hits, it skips vector search entirely. Your tools don&rsquo;t need any conditional logic — they just execute what they&rsquo;re called with.</p>
+<pre tabindex="0"><code>Tool 1 returns: [item-1: hit, item-2: no, item-3: hit, item-4: no]
+                                ↓
+Model constructs Tool 2 input: [item-2, item-4]   ← only the misses
+</code></pre><p>Your tools should be dumb executors. The model is the brain.</p>
+<h2 id="lesson-3-use-stable-ids-as-passthrough-fields">Lesson 3: Use Stable IDs as Passthrough Fields</h2>
+<p>Here&rsquo;s a subtle trap. Suppose your keyword_search tool just takes an array of strings and returns an array of results in the same order. The model has to mentally track &ldquo;result[0] corresponds to query[0], result[1] to query[1]&rdquo; across multiple turns.</p>
+<p>This works most of the time — but it&rsquo;s fragile. The model is doing positional bookkeeping in its head, across multiple context-heavy turns, with no guardrails.</p>
+<p>A better pattern: include a stable ID as a passthrough field that the tool echoes back without using internally.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#75715e">// Input
+</span></span></span><span style="display:flex;"><span>{ <span style="color:#f92672">&#34;candidates&#34;</span>: [
+</span></span><span style="display:flex;"><span>    { <span style="color:#f92672">&#34;item_id&#34;</span>: <span style="color:#e6db74">&#34;1-1&#34;</span>, <span style="color:#f92672">&#34;text&#34;</span>: <span style="color:#e6db74">&#34;...&#34;</span> },
+</span></span><span style="display:flex;"><span>    { <span style="color:#f92672">&#34;item_id&#34;</span>: <span style="color:#e6db74">&#34;1-2&#34;</span>, <span style="color:#f92672">&#34;text&#34;</span>: <span style="color:#e6db74">&#34;...&#34;</span> }
+</span></span><span style="display:flex;"><span>]}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Output — item_id echoed back
+</span></span></span><span style="display:flex;"><span>{ <span style="color:#f92672">&#34;results&#34;</span>: [
+</span></span><span style="display:flex;"><span>    { <span style="color:#f92672">&#34;item_id&#34;</span>: <span style="color:#e6db74">&#34;1-1&#34;</span>, <span style="color:#f92672">&#34;match&#34;</span>: <span style="color:#66d9ef">true</span>, <span style="color:#f92672">&#34;match_id&#34;</span>: <span style="color:#e6db74">&#34;REF-482&#34;</span> },
+</span></span><span style="display:flex;"><span>    { <span style="color:#f92672">&#34;item_id&#34;</span>: <span style="color:#e6db74">&#34;1-2&#34;</span>, <span style="color:#f92672">&#34;match&#34;</span>: <span style="color:#66d9ef">false</span> }
+</span></span><span style="display:flex;"><span>]}
+</span></span></code></pre></div><p>The tool doesn&rsquo;t need to know what <code>item_id</code> means. It&rsquo;s just a tracking key. But now the model can reliably correlate results back to the original items, even across multiple turns and tools. The cost is trivial; the reliability gain is significant.</p>
+<h2 id="lesson-4-batch-writes-at-the-end-beat-per-tool-writes">Lesson 4: Batch Writes at the End Beat Per-Tool Writes</h2>
+<p>I had to choose between writing results to my database after each tool call, or batching everything and writing once at the end. I chose batch.</p>
+<pre tabindex="0"><code>Per-tool writes (rejected):
+  Tool 1 writes 3 records, Tool 2 writes 7 records, Tool 3 fails
+  → 10 records in DB from a failed run, need cleanup logic
+
+Batch write (chosen):
+  Tool 1 returns to model, Tool 2 returns to model, Tool 3 writes all 10
+  → If Tool 3 fails, nothing in DB, clean retry
+</code></pre><p>The batch approach gives you atomicity for free. Either the whole pipeline lands in the DB or nothing does. With per-tool writes, you have to handle partial state, deduplication, and rollback — meaningful complexity for a marginal latency gain.</p>
+<p>The exception: if your pipeline has many turns and you can&rsquo;t afford to lose intermediate work, checkpointing makes sense. But for short, deterministic pipelines, batch is simpler and safer.</p>
+<p>Make sure your terminal tool is idempotent — a unique constraint on (run_id, item_id) handles the retry case cleanly.</p>
+<h2 id="lesson-5-the-model-decides-when-to-stop">Lesson 5: The Model Decides When to Stop</h2>
+<p>The agent loop&rsquo;s exit condition isn&rsquo;t something your code computes. It&rsquo;s whatever the model returns.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">while</span> turn_count <span style="color:#f92672">&lt;</span> max_turns:
+</span></span><span style="display:flex;"><span>    response <span style="color:#f92672">=</span> call_api(system, tools, messages)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> response<span style="color:#f92672">.</span>stop_reason <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;end_turn&#34;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">break</span>  <span style="color:#75715e"># model has nothing left to do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> response<span style="color:#f92672">.</span>stop_reason <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;tool_use&#34;</span>:
+</span></span><span style="display:flex;"><span>        execute_tool(response)
+</span></span><span style="display:flex;"><span>        append_to_messages(response)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># loop continues</span>
+</span></span></code></pre></div><p>The model &ldquo;decides&rdquo; to stop by simply generating text instead of a tool call. There&rsquo;s no explicit completion classifier. It&rsquo;s next-token prediction — the model has been trained to recognize when it has enough information to answer, and at that point the most probable next tokens form a text response rather than a tool call.</p>
+<p>Two consequences:</p>
+<ul>
+<li><strong>Your prompt shapes the stop behavior.</strong> If you tell the model &ldquo;be thorough — verify with at least three sources,&rdquo; it&rsquo;ll keep calling tools longer. If you say &ldquo;stop as soon as you have a definitive answer,&rdquo; it stops sooner. You&rsquo;re shifting probabilities at the decision point.</li>
+<li><strong>You need a <code>max_turns</code> safety net.</strong> If the model gets stuck in a loop or your prompt is ambiguous, you don&rsquo;t want infinite tool calls. A hard limit protects you.</li>
+</ul>
+<h2 id="the-trade-off-between-raw-api-and-higher-level-sdks">The Trade-off Between Raw API and Higher-Level SDKs</h2>
+<p>You can write this loop yourself against the raw Anthropic, OpenAI, or Bedrock API. Or you can use a higher-level SDK (like the Claude Agent SDK or LangChain) that handles the loop for you.</p>
+<p>The raw approach gives you control. You see every message, every tool call, every retry. You can shape the loop to fit your domain — custom retry logic, specialized error handling, fine-grained observability.</p>
+<p>The SDK approach gives you speed. You skip the boilerplate and get features like context compaction (when conversations exceed the window) and automatic budget enforcement.</p>
+<p>For my pipeline — short, deterministic, four tools — raw API was the right choice. For a long-running agent that needs to chain dozens of operations across hours, the SDK earns its weight.</p>
+<h2 id="summary">Summary</h2>
+<p>If I had to compress this post into a list:</p>
+<ul>
+<li>Every API call is stateless. Your code sends everything every time.</li>
+<li>The model orchestrates tools. Your tools should be dumb executors.</li>
+<li>Stable IDs as passthrough fields beat positional inference.</li>
+<li>Batch your writes at the end. Atomicity beats complexity.</li>
+<li>The model decides when to stop. Shape it through prompting; protect it with <code>max_turns</code>.</li>
+<li>Use prompt caching for multi-turn flows. The system prompt is a tax otherwise.</li>
+</ul>
+<p>Tool calling looks like magic from the outside. Up close, it&rsquo;s just a structured loop with the model in the driver&rsquo;s seat — and once you internalize that, designing these pipelines becomes a lot more straightforward.</p>
+<hr>
+<p><strong>A few notes on this draft:</strong></p>
+<p>I deliberately kept the tool names generic (<code>keyword_search</code>, <code>vector_search</code>) — they map cleanly to the two-stage retrieval pattern that&rsquo;s common in RAG and search systems, so readers from many domains will recognize the shape without you giving away your specific use case.</p>
+<p>I&rsquo;d suggest <strong>not</strong> including the full JSON message exchange in the published version — it adds length without adding much beyond what the prose already conveys. If you do want JSON in there, a single short example (like the <code>item_id</code> passthrough one) is enough to make the point.</p>
+<p>The &ldquo;Trade-off Between Raw API and Higher-Level SDKs&rdquo; section is optional — cut it if you want a tighter post focused purely on the loop mechanics.</p>
+<p>Want me to adjust the tone (more technical / more accessible), tighten the length, or rework any specific section?</p>
+</section>
+
+  <nav
+    class="mt-24 flex overflow-hidden rounded-xl bg-black/[3%] text-lg leading-[1.2]! *:flex *:w-1/2 *:items-center *:p-5 *:font-medium *:no-underline dark:bg-white/[8%] [&>*:hover]:bg-black/[2%] dark:[&>*:hover]:bg-white/[3%]"
+  ><a
+      class="justify-end pl-3 ltr:ml-auto rtl:mr-auto"
+      href="http://localhost:1313/posts/20260509-memory/"
+      ><span>The AI Memory Supercycle: Who Actually Earns the GPU Dollar in 2026</span><span class="ltr:ml-1.5 rtl:mr-1.5">→</span></a
+    ></nav></article></main><footer
+  class="mx-auto flex h-[4.5rem] max-w-(--w) items-center px-8 text-xs tracking-wider uppercase opacity-60"
+>
+  <div class="mr-auto">&copy;2026
+    <a class="link" href="http://localhost:1313/">Yiwei Shi</a></div>
+  <a class="link mx-6" href="https://gohugo.io/" rel="noopener" target="_blank"
+    >powered by hugo️️</a
+  >️
+  <a
+    class="link"
+    href="https://github.com/nanxiaobei/hugo-paper"
+    rel="noopener"
+    target="_blank"
+    >hugo-paper</a
+  >
+</footer>
+</body>
+</html>
