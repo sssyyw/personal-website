@@ -17,16 +17,16 @@
     </item>
     <item>
       <title>Building a Multi-Turn LLM Tool-Calling Pipeline</title>
-      <link>//localhost:1313/posts/20260510-multi-turn-llm-workflow/</link>
-      <pubDate>Sun, 10 May 2026 01:20:40 -0400</pubDate>
-      <guid>//localhost:1313/posts/20260510-multi-turn-llm-workflow/</guid>
+      <link>//localhost:1313/posts/20260509-multi-turn-llm-workflow/</link>
+      <pubDate>Sat, 09 May 2026 01:20:40 -0400</pubDate>
+      <guid>//localhost:1313/posts/20260509-multi-turn-llm-workflow/</guid>
       <description>&lt;p&gt;If you&amp;rsquo;ve used the OpenAI, Anthropic, or Bedrock APIs to build something more sophisticated than a chatbot, you&amp;rsquo;ve probably written an agent loop — code that lets the model call tools, receive results, and decide what to do next. I recently built one for a document analysis pipeline at work, and a few things surprised me. This post is a distillation of those lessons, using a generic example.&lt;/p&gt;&#xA;&lt;h2 id=&#34;the-setup-a-four-tool-pipeline&#34;&gt;The Setup: A Four-Tool Pipeline&lt;/h2&gt;&#xA;&lt;p&gt;Imagine you&amp;rsquo;re processing a document. For each item the model identifies, you want to:&lt;/p&gt;</description>
     </item>
     <item>
       <title>The AI Memory Supercycle: Who Actually Earns the GPU Dollar</title>
-      <link>//localhost:1313/posts/20260509-memory/</link>
-      <pubDate>Sat, 09 May 2026 11:58:50 -0400</pubDate>
-      <guid>//localhost:1313/posts/20260509-memory/</guid>
+      <link>//localhost:1313/posts/20260508-memory/</link>
+      <pubDate>Fri, 08 May 2026 11:58:50 -0400</pubDate>
+      <guid>//localhost:1313/posts/20260508-memory/</guid>
       <description>&lt;p&gt;&lt;em&gt;A deep dive into the memory shortage, the Nvidia value chain, and where the profits are flowing&lt;/em&gt;&lt;/p&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;the-setup-something-strange-is-happening-in-memory&#34;&gt;The Setup: Something Strange Is Happening in Memory&lt;/h2&gt;&#xA;&lt;p&gt;If you only watch Nvidia, you are missing the most interesting story in semiconductors right now.&lt;/p&gt;&#xA;&lt;p&gt;In Q1 2026, SK Hynix posted an operating margin of 72%. That number is not a typo. It exceeded both Nvidia and TSMC in the same quarter. For a company that makes commodity DRAM, this is the kind of margin associated with luxury handbags, not memory chips. Industry veterans say profitability like this has not been seen since Microsoft launched Windows 95 in 1995.&lt;/p&gt;</description>
     </item>
   </channel>
