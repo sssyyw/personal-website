@@ -1,0 +1,1410 @@
+<!doctype html>
+
+
+
+
+
+
+
+<html
+  class="not-ready lg:text-base"
+  style="--bg:#fbfbfb"
+  lang="en-us"
+  dir="ltr"
+><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>Python Review 2026: 21 Essential Examples - Yiwei Shi</title>
+
+  
+  <meta name="theme-color" />
+
+  <meta name="description" content="&lt;!DOCTYPE html&gt;
+
+
+
+
+Python Examples Reference
+
+
+
+
+
+
+
+  Contents
+  
+    01 For Loops with Index
+    02 Arrays in Python
+    03 Access Modifiers
+    04 Name Mangling
+    05 Generators
+    06 Map API
+    07 Inheritance
+    08 MRO &amp; C3 Linearization
+    09 Type Enforcement
+    10 Exception Rethrow
+    11 HashSet
+    12 Closures
+    13 Closure Use Cases
+    14 Decorators
+    15 Multithreading &amp; Multiprocessing
+    16 GIL Removal
+    17 Recent Python Features
+    18 f-strings
+    19 New Type-Parameter Syntax (3.12)
+    20 Recap of 3.8 / 3.9 / 3.10
+    21 Positional-Only Params &amp; Pattern Matching
+  
+
+
+
+
+
+
+  Section 01
+  For Loops with Index
+  Python&#39;s enumerate() is the idiomatic way to get both the index and the value while iterating. You can also use range(len(...)), but it&#39;s less Pythonic." />
+  <meta name="author" content="Yiwei Shi" /><link rel="preload stylesheet" as="style" href="//localhost:1313/main.min.e86ae67e01e2d2055106abf72be7357c950191060e5f159f24e2790fd8237e8c.css" integrity="sha256-6GrmfgHi0gVRBqv3K&#43;c1fJUBkQYOXxWfJOJ5D9gjfow=" />
+
+  
+  <link rel="preload" as="image" href="//localhost:1313/theme.png" />
+
+  
+
+  <link rel="preload" as="image" href="//localhost:1313/twitter.svg" /><link rel="preload" as="image" href="//localhost:1313/github.svg" /><link rel="preload" as="image" href="//localhost:1313/linkedin.svg" />
+
+  <script
+    defer
+    src="//localhost:1313/highlight.min.js"
+    onload="hljs.initHighlightingOnLoad()"
+  ></script>
+
+  
+  <link
+    rel="icon"
+    href="//localhost:1313/favicon.ico"
+  />
+  <link
+    rel="apple-touch-icon"
+    href="//localhost:1313/apple-touch-icon.png"
+  />
+
+  <meta name="generator" content="Hugo 0.161.1">
+</head>
+<body
+    class="bg-(--bg) text-black antialiased duration-200 ease-out [-webkit-tap-highlight-color:transparent] dark:text-white"
+  ><header
+  class="mx-auto flex h-[4.5rem] max-w-(--w) px-8 whitespace-nowrap lg:justify-center"
+>
+  <div class="relative z-50 flex items-center ltr:mr-auto rtl:ml-auto">
+    <a
+      class="-translate-y-[1px] text-2xl font-medium"
+      href="//localhost:1313/"
+      >Yiwei Shi</a
+    >
+    <div
+      class="btn-dark text-[0px] ltr:ml-4 rtl:mr-4 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.png)_left_center/_auto_theme('spacing.6')_no-repeat] [transition:_background-position_0.4s_steps(5)] dark:[background-position:right]"
+      role="button"
+      aria-label="Dark"
+    ></div>
+  </div>
+
+  <div
+    class="btn-menu relative z-50 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden ltr:-mr-8 rtl:-ml-8"
+    role="button"
+    aria-label="Menu"
+  ></div>
+
+  <script>
+    
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = '#fbfbfb'.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? "rgb(0 0 0 / 85%)" : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full flex-col justify-center bg-(--bg) pb-16 duration-200 select-none lg:static lg:h-auto lg:flex-row lg:bg-transparent! lg:pb-0 lg:transition-none"
+  ><nav
+      class="mt-12 flex justify-center space-x-10 lg:mt-0 lg:items-center ltr:lg:ml-14 rtl:space-x-reverse rtl:lg:mr-14 dark:invert"
+    >
+      <a
+        class="h-7 w-7 text-[0px] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./twitter.svg)"
+        href="https://twitter.com/coolworkout"
+        target="_blank"
+        rel="me"
+      >twitter</a>
+      <a
+        class="h-7 w-7 text-[0px] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./github.svg)"
+        href="https://github.com/sssyyw"
+        target="_blank"
+        rel="me"
+      >github</a>
+      <a
+        class="h-7 w-7 text-[0px] [background:var(--url)_center_center/cover_no-repeat] lg:h-6 lg:w-6"
+        style="--url: url(./linkedin.svg)"
+        href="https://linkedin.com/in/yiweishi"
+        target="_blank"
+        rel="me"
+      >linkedin</a>
+    </nav>
+  </div>
+</header>
+<main
+      class="prose prose-neutral dark:prose-invert relative mx-auto min-h-[calc(100vh-9rem)] max-w-(--w) px-8 pt-14 pb-16"
+    ><article>
+  <header class="mb-14">
+    <h1 class="my-0! pb-2.5">Python Review 2026: 21 Essential Examples</h1><div class="text-xs antialiased opacity-60"><time>May 10, 2026</time></div></header>
+
+  <section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Examples Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #181a24;
+    --surface-hover: #1e2130;
+    --border: #2a2d3a;
+    --text: #e0e0e8;
+    --text-dim: #8b8ea0;
+    --accent: #7c9bf5;
+    --accent-dim: #4a6bc5;
+    --green: #6ec87a;
+    --orange: #e0a050;
+    --pink: #d87caa;
+    --red: #e06060;
+    --yellow: #d4c46a;
+    --cyan: #5cc5c5;
+    --code-bg: #12141e;
+    --code-border: #252838;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  .hero {
+    padding: 60px 40px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .hero h1 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 2.6rem;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .hero .subtitle {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+  }
+
+  .toc {
+    max-width: 900px;
+    margin: 0 auto 40px;
+    padding: 0 40px;
+  }
+
+  .toc h2 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.2rem;
+    color: var(--accent);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 32px;
+  }
+
+  .toc a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 4px 0;
+    display: block;
+    transition: color 0.15s;
+  }
+
+  .toc a:hover { color: var(--accent); }
+  .toc a .num { color: var(--accent-dim); margin-right: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+
+  .content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .section h2 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.55rem;
+    color: #fff;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section p {
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+  }
+
+  .section p strong { color: var(--text); }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--text);
+  }
+
+  .kw { color: var(--pink); }
+  .fn { color: var(--accent); }
+  .st { color: var(--green); }
+  .cm { color: var(--text-dim); font-style: italic; }
+  .nb { color: var(--cyan); }
+  .num { color: var(--orange); }
+  .op { color: var(--text-dim); }
+  .dec { color: var(--yellow); }
+  .out {
+    display: block;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--code-border);
+    color: var(--text-dim);
+  }
+
+  .note {
+    background: var(--surface);
+    border-left: 3px solid var(--accent-dim);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+  }
+
+  .note strong { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .hero, .toc, .content { padding-left: 20px; padding-right: 20px; }
+    .hero h1 { font-size: 1.8rem; }
+    .toc-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <div class="toc-grid">
+    <a href="#s1"><span class="num">01</span> For Loops with Index</a>
+    <a href="#s2"><span class="num">02</span> Arrays in Python</a>
+    <a href="#s3"><span class="num">03</span> Access Modifiers</a>
+    <a href="#s4"><span class="num">04</span> Name Mangling</a>
+    <a href="#s5"><span class="num">05</span> Generators</a>
+    <a href="#s6"><span class="num">06</span> Map API</a>
+    <a href="#s7"><span class="num">07</span> Inheritance</a>
+    <a href="#s8"><span class="num">08</span> MRO &amp; C3 Linearization</a>
+    <a href="#s9"><span class="num">09</span> Type Enforcement</a>
+    <a href="#s10"><span class="num">10</span> Exception Rethrow</a>
+    <a href="#s11"><span class="num">11</span> HashSet</a>
+    <a href="#s12"><span class="num">12</span> Closures</a>
+    <a href="#s13"><span class="num">13</span> Closure Use Cases</a>
+    <a href="#s14"><span class="num">14</span> Decorators</a>
+    <a href="#s15"><span class="num">15</span> Multithreading &amp; Multiprocessing</a>
+    <a href="#s16"><span class="num">16</span> GIL Removal</a>
+    <a href="#s17"><span class="num">17</span> Recent Python Features</a>
+    <a href="#s18"><span class="num">18</span> f-strings</a>
+    <a href="#s19"><span class="num">19</span> New Type-Parameter Syntax (3.12)</a>
+    <a href="#s20"><span class="num">20</span> Recap of 3.8 / 3.9 / 3.10</a>
+    <a href="#s21"><span class="num">21</span> Positional-Only Params &amp; Pattern Matching</a>
+  </div>
+</nav>
+
+<div class="content">
+
+<!-- ===== 1. FOR LOOPS WITH INDEX ===== -->
+<div class="section" id="s1">
+  <div class="section-number">Section 01</div>
+  <h2>For Loops with Index</h2>
+  <p>Python's <strong>enumerate()</strong> is the idiomatic way to get both the index and the value while iterating. You can also use <strong>range(len(...))</strong>, but it's less Pythonic.</p>
+
+<pre><span class="cm"># Method 1: enumerate (preferred)</span>
+fruits = [<span class="st">"apple"</span>, <span class="st">"banana"</span>, <span class="st">"cherry"</span>]
+
+<span class="kw">for</span> i, fruit <span class="kw">in</span> <span class="fn">enumerate</span>(fruits):
+    <span class="fn">print</span>(<span class="st">f"</span>{i}: {fruit}<span class="st">"</span>)
+
+<span class="cm"># Start index at 1</span>
+<span class="kw">for</span> i, fruit <span class="kw">in</span> <span class="fn">enumerate</span>(fruits, start=<span class="num">1</span>):
+    <span class="fn">print</span>(<span class="st">f"</span>{i}. {fruit}<span class="st">"</span>)
+<span class="out"># 1. apple
+# 2. banana
+# 3. cherry</span></pre>
+
+<pre><span class="cm"># Method 2: range(len(...)) — works but less idiomatic</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(fruits)):
+    <span class="fn">print</span>(<span class="st">f"</span>{i}: {fruits[i]}<span class="st">"</span>)
+
+<span class="cm"># Method 3: zip with range for parallel iteration</span>
+names = [<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Charlie"</span>]
+scores = [<span class="num">95</span>, <span class="num">82</span>, <span class="num">88</span>]
+
+<span class="kw">for</span> i, (name, score) <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="fn">zip</span>(names, scores)):
+    <span class="fn">print</span>(<span class="st">f"</span>{i}: {name} scored {score}<span class="st">"</span>)
+<span class="out"># 0: Alice scored 95
+# 1: Bob scored 82
+# 2: Charlie scored 88</span></pre>
+</div>
+
+<!-- ===== 2. ARRAYS IN PYTHON ===== -->
+<div class="section" id="s2">
+  <div class="section-number">Section 02</div>
+  <h2>Arrays in Python</h2>
+  <p>Python doesn't have a built-in array type the way Java or C do. The <strong>list</strong> is the default go-to. For typed, memory-efficient arrays Python has <strong>array.array</strong> in the stdlib, and <strong>numpy.ndarray</strong> for numerical work.</p>
+
+<pre><span class="cm"># Lists — the default "array" in Python (heterogeneous, dynamic)</span>
+my_list = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="st">"hello"</span>, <span class="num">3.14</span>]
+my_list.<span class="fn">append</span>(<span class="num">4</span>)
+<span class="fn">print</span>(my_list[<span class="num">0</span>])       <span class="cm"># 1</span>
+<span class="fn">print</span>(my_list[-<span class="num">1</span>])      <span class="cm"># 4</span>
+<span class="fn">print</span>(my_list[<span class="num">1</span>:<span class="num">3</span>])     <span class="cm"># [2, 3]</span></pre>
+
+<pre><span class="cm"># array.array — typed, compact storage (single type only)</span>
+<span class="kw">from</span> array <span class="kw">import</span> array
+
+int_arr = <span class="fn">array</span>(<span class="st">"i"</span>, [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>])   <span class="cm"># "i" = signed int</span>
+int_arr.<span class="fn">append</span>(<span class="num">40</span>)
+<span class="fn">print</span>(int_arr[<span class="num">2</span>])  <span class="cm"># 30</span>
+
+<span class="cm"># int_arr.append("hello")  # TypeError — enforces the type code</span></pre>
+
+<pre><span class="cm"># numpy.ndarray — for numerical / scientific work</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+arr = np.<span class="fn">array</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>])
+<span class="fn">print</span>(arr * <span class="num">2</span>)         <span class="cm"># [2 4 6 8]  — element-wise</span>
+<span class="fn">print</span>(arr.<span class="fn">mean</span>())      <span class="cm"># 2.5</span></pre>
+
+  <div class="note"><strong>Rule of thumb:</strong> Use <code>list</code> unless you need performance with millions of homogeneous numbers, in which case reach for <code>array.array</code> or <code>numpy</code>.</div>
+</div>
+
+<!-- ===== 3. ACCESS MODIFIERS ===== -->
+<div class="section" id="s3">
+  <div class="section-number">Section 03</div>
+  <h2>Access Modifiers</h2>
+  <p>Python has <strong>no enforced</strong> public/private/protected keywords like Java. Instead it uses <strong>naming conventions</strong>: a single underscore <code>_name</code> signals "internal — don't touch", and a double underscore <code>__name</code> triggers name mangling. Everything is technically accessible.</p>
+
+<pre><span class="kw">class</span> <span class="fn">Account</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, owner, balance):
+        self.owner = owner            <span class="cm"># "public" — no underscore</span>
+        self._currency = <span class="st">"USD"</span>       <span class="cm"># "protected" — single underscore (convention)</span>
+        self.__balance = balance       <span class="cm"># "private" — double underscore (name-mangled)</span>
+
+    <span class="kw">def</span> <span class="fn">get_balance</span>(self):
+        <span class="kw">return</span> self.__balance
+
+acc = <span class="fn">Account</span>(<span class="st">"Alice"</span>, <span class="num">1000</span>)
+
+<span class="fn">print</span>(acc.owner)           <span class="cm"># Alice          — fully accessible</span>
+<span class="fn">print</span>(acc._currency)       <span class="cm"># USD             — accessible but "please don't"</span>
+<span class="fn">print</span>(acc.get_balance())   <span class="cm"># 1000            — via getter</span>
+
+<span class="cm"># print(acc.__balance)     # AttributeError!</span>
+<span class="fn">print</span>(acc._Account__balance)  <span class="cm"># 1000 — name mangling lets you bypass</span></pre>
+
+  <div class="note"><strong>Python philosophy:</strong> "We are all consenting adults here." Access control is advisory, not enforced.</div>
+</div>
+
+<!-- ===== 4. NAME MANGLING ===== -->
+<div class="section" id="s4">
+  <div class="section-number">Section 04</div>
+  <h2>Name Mangling</h2>
+  <p>When you prefix an attribute with <strong>double underscores</strong> (e.g. <code>__name</code>), Python internally renames it to <code>_ClassName__name</code>. This is called <strong>name mangling</strong>. Its purpose is to avoid accidental name collisions in subclasses, not to enforce privacy.</p>
+
+<pre><span class="kw">class</span> <span class="fn">Person</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name):
+        self.__name = name   <span class="cm"># stored as _Person__name internally</span>
+
+p = <span class="fn">Person</span>(<span class="st">"Alice"</span>)
+
+<span class="cm"># Direct access fails</span>
+<span class="kw">try</span>:
+    <span class="fn">print</span>(p.__name)
+<span class="kw">except</span> <span class="nb">AttributeError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="st">f"Error: </span>{e}<span class="st">"</span>)
+    <span class="cm"># Error: 'Person' object has no attribute '__name'</span>
+
+<span class="cm"># Name-mangled access works</span>
+<span class="fn">print</span>(p._Person__name)   <span class="cm"># Alice</span>
+
+<span class="cm"># You can see the mangled name in __dict__</span>
+<span class="fn">print</span>(p.__dict__)
+<span class="cm"># {'_Person__name': 'Alice'}</span></pre>
+
+<pre><span class="cm"># WHY it exists — avoiding collisions in subclasses</span>
+<span class="kw">class</span> <span class="fn">Base</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self.__value = <span class="num">10</span>    <span class="cm"># _Base__value</span>
+
+<span class="kw">class</span> <span class="fn">Child</span>(Base):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        <span class="fn">super</span>().__init__()
+        self.__value = <span class="num">20</span>    <span class="cm"># _Child__value (separate!)</span>
+
+c = <span class="fn">Child</span>()
+<span class="fn">print</span>(c._Base__value)    <span class="cm"># 10 — parent's version</span>
+<span class="fn">print</span>(c._Child__value)   <span class="cm"># 20 — child's version</span></pre>
+</div>
+
+<!-- ===== 5. GENERATORS ===== -->
+<div class="section" id="s5">
+  <div class="section-number">Section 05</div>
+  <h2>Generators</h2>
+  <p>A <strong>generator</strong> is a function that yields values one at a time using <code>yield</code>, producing items lazily instead of building the entire collection in memory.</p>
+
+<pre><span class="cm"># Basic generator function</span>
+<span class="kw">def</span> <span class="fn">countdown</span>(n):
+    <span class="kw">while</span> n > <span class="num">0</span>:
+        <span class="kw">yield</span> n
+        n -= <span class="num">1</span>
+
+<span class="kw">for</span> num <span class="kw">in</span> <span class="fn">countdown</span>(<span class="num">5</span>):
+    <span class="fn">print</span>(num, end=<span class="st">" "</span>)
+<span class="out"># 5 4 3 2 1</span></pre>
+
+<pre><span class="cm"># Generator expression (like a list comprehension, but lazy)</span>
+squares = (x**<span class="num">2</span> <span class="kw">for</span> x <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1_000_000</span>))
+<span class="fn">print</span>(<span class="fn">next</span>(squares))   <span class="cm"># 0</span>
+<span class="fn">print</span>(<span class="fn">next</span>(squares))   <span class="cm"># 1</span>
+<span class="fn">print</span>(<span class="fn">next</span>(squares))   <span class="cm"># 4</span></pre>
+
+<pre><span class="cm"># Practical: reading a huge file line by line</span>
+<span class="kw">def</span> <span class="fn">read_lines</span>(filepath):
+    <span class="kw">with</span> <span class="fn">open</span>(filepath) <span class="kw">as</span> f:
+        <span class="kw">for</span> line <span class="kw">in</span> f:
+            <span class="kw">yield</span> line.<span class="fn">strip</span>()
+
+<span class="cm"># Infinite generator</span>
+<span class="kw">def</span> <span class="fn">fibonacci</span>():
+    a, b = <span class="num">0</span>, <span class="num">1</span>
+    <span class="kw">while</span> <span class="nb">True</span>:
+        <span class="kw">yield</span> a
+        a, b = b, a + b
+
+fib = <span class="fn">fibonacci</span>()
+<span class="fn">print</span>([<span class="fn">next</span>(fib) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>)])
+<span class="out"># [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]</span></pre>
+</div>
+
+<!-- ===== 6. MAP API ===== -->
+<div class="section" id="s6">
+  <div class="section-number">Section 06</div>
+  <h2>Map API</h2>
+  <p>Python has the built-in <strong>map()</strong> function that applies a function to every element of an iterable. It returns a lazy iterator.</p>
+
+<pre><span class="cm"># map() basics</span>
+nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]
+doubled = <span class="fn">map</span>(<span class="kw">lambda</span> x: x * <span class="num">2</span>, nums)
+<span class="fn">print</span>(<span class="fn">list</span>(doubled))   <span class="cm"># [2, 4, 6, 8]</span>
+
+<span class="cm"># With a named function</span>
+<span class="kw">def</span> <span class="fn">to_upper</span>(s):
+    <span class="kw">return</span> s.<span class="fn">upper</span>()
+
+names = [<span class="st">"alice"</span>, <span class="st">"bob"</span>, <span class="st">"charlie"</span>]
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="fn">map</span>(to_upper, names)))
+<span class="out"># ['ALICE', 'BOB', 'CHARLIE']</span></pre>
+
+<pre><span class="cm"># map() with multiple iterables</span>
+a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+b = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> x, y: x + y, a, b)))
+<span class="out"># [11, 22, 33]</span></pre>
+
+<pre><span class="cm"># Often a list comprehension is more Pythonic:</span>
+result = [x * <span class="num">2</span> <span class="kw">for</span> x <span class="kw">in</span> nums]   <span class="cm"># same as map(lambda x: x*2, nums)</span>
+
+<span class="cm"># dict: Python's built-in hash map / dictionary</span>
+d = {<span class="st">"name"</span>: <span class="st">"Alice"</span>, <span class="st">"age"</span>: <span class="num">30</span>}
+d[<span class="st">"email"</span>] = <span class="st">"alice@example.com"</span>
+<span class="fn">print</span>(d.<span class="fn">get</span>(<span class="st">"name"</span>))   <span class="cm"># Alice</span></pre>
+</div>
+
+<!-- ===== 7. INHERITANCE ===== -->
+<div class="section" id="s7">
+  <div class="section-number">Section 07</div>
+  <h2>Inheritance</h2>
+  <p>Python supports <strong>single, multiple, and multilevel</strong> inheritance. All classes implicitly inherit from <code>object</code>.</p>
+
+<pre><span class="cm"># Single inheritance</span>
+<span class="kw">class</span> <span class="fn">Animal</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name):
+        self.name = name
+
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="kw">return</span> <span class="st">"..."</span>
+
+<span class="kw">class</span> <span class="fn">Dog</span>(Animal):
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="kw">return</span> <span class="st">f"</span>{self.name} says Woof!<span class="st">"</span>
+
+<span class="kw">class</span> <span class="fn">Cat</span>(Animal):
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="kw">return</span> <span class="st">f"</span>{self.name} says Meow!<span class="st">"</span>
+
+<span class="fn">print</span>(<span class="fn">Dog</span>(<span class="st">"Rex"</span>).<span class="fn">speak</span>())   <span class="cm"># Rex says Woof!</span>
+<span class="fn">print</span>(<span class="fn">isinstance</span>(<span class="fn">Dog</span>(<span class="st">"Rex"</span>), Animal))  <span class="cm"># True</span></pre>
+
+<pre><span class="cm"># Multiple inheritance</span>
+<span class="kw">class</span> <span class="fn">Flyable</span>:
+    <span class="kw">def</span> <span class="fn">fly</span>(self):
+        <span class="kw">return</span> <span class="st">f"</span>{self.name} is flying<span class="st">"</span>
+
+<span class="kw">class</span> <span class="fn">Swimmable</span>:
+    <span class="kw">def</span> <span class="fn">swim</span>(self):
+        <span class="kw">return</span> <span class="st">f"</span>{self.name} is swimming<span class="st">"</span>
+
+<span class="kw">class</span> <span class="fn">Duck</span>(Animal, Flyable, Swimmable):
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="kw">return</span> <span class="st">f"</span>{self.name} says Quack!<span class="st">"</span>
+
+donald = <span class="fn">Duck</span>(<span class="st">"Donald"</span>)
+<span class="fn">print</span>(donald.<span class="fn">speak</span>())   <span class="cm"># Donald says Quack!</span>
+<span class="fn">print</span>(donald.<span class="fn">fly</span>())     <span class="cm"># Donald is flying</span>
+<span class="fn">print</span>(donald.<span class="fn">swim</span>())    <span class="cm"># Donald is swimming</span></pre>
+
+<pre><span class="cm"># super() for calling parent methods</span>
+<span class="kw">class</span> <span class="fn">Puppy</span>(Dog):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, name, toy):
+        <span class="fn">super</span>().__init__(name)
+        self.toy = toy
+
+    <span class="kw">def</span> <span class="fn">speak</span>(self):
+        <span class="kw">return</span> <span class="fn">super</span>().<span class="fn">speak</span>() + <span class="st">" (tiny woof)"</span>
+
+p = <span class="fn">Puppy</span>(<span class="st">"Tiny"</span>, <span class="st">"ball"</span>)
+<span class="fn">print</span>(p.<span class="fn">speak</span>())  <span class="cm"># Tiny says Woof! (tiny woof)</span></pre>
+</div>
+
+<!-- ===== 8. MRO & C3 LINEARIZATION ===== -->
+<div class="section" id="s8">
+  <div class="section-number">Section 08</div>
+  <h2>MRO &amp; C3 Linearization</h2>
+  <p><strong>MRO (Method Resolution Order)</strong> is the order Python searches classes when you call a method. Python uses the <strong>C3 linearization</strong> algorithm to compute a consistent, deterministic MRO for multiple inheritance, respecting both local precedence and monotonicity.</p>
+
+<pre><span class="kw">class</span> <span class="fn">A</span>:
+    <span class="kw">def</span> <span class="fn">who</span>(self): <span class="kw">return</span> <span class="st">"A"</span>
+
+<span class="kw">class</span> <span class="fn">B</span>(A):
+    <span class="kw">def</span> <span class="fn">who</span>(self): <span class="kw">return</span> <span class="st">"B"</span>
+
+<span class="kw">class</span> <span class="fn">C</span>(A):
+    <span class="kw">def</span> <span class="fn">who</span>(self): <span class="kw">return</span> <span class="st">"C"</span>
+
+<span class="kw">class</span> <span class="fn">D</span>(B, C):
+    <span class="kw">pass</span>
+
+<span class="cm"># Check the MRO</span>
+<span class="fn">print</span>(D.__mro__)
+<span class="out"># (&lt;class 'D'&gt;, &lt;class 'B'&gt;, &lt;class 'C'&gt;, &lt;class 'A'&gt;, &lt;class 'object'&gt;)</span>
+
+<span class="cm"># D has no who(), so Python walks: D → B → found "B"</span>
+<span class="fn">print</span>(<span class="fn">D</span>().<span class="fn">who</span>())  <span class="cm"># B</span></pre>
+
+<pre><span class="cm"># C3 algorithm rules (simplified):
+# 1. The class itself comes first
+# 2. Then merge the MROs of parents (left to right)
+# 3. A class only appears once, and before its parents
+# 4. If ordering is ambiguous/inconsistent → TypeError</span>
+
+<span class="cm"># Diamond problem resolved cleanly:</span>
+<span class="kw">class</span> <span class="fn">Base</span>:
+    <span class="kw">def</span> <span class="fn">setup</span>(self): <span class="fn">print</span>(<span class="st">"Base.setup"</span>)
+
+<span class="kw">class</span> <span class="fn">Left</span>(Base):
+    <span class="kw">def</span> <span class="fn">setup</span>(self):
+        <span class="fn">print</span>(<span class="st">"Left.setup"</span>)
+        <span class="fn">super</span>().<span class="fn">setup</span>()
+
+<span class="kw">class</span> <span class="fn">Right</span>(Base):
+    <span class="kw">def</span> <span class="fn">setup</span>(self):
+        <span class="fn">print</span>(<span class="st">"Right.setup"</span>)
+        <span class="fn">super</span>().<span class="fn">setup</span>()
+
+<span class="kw">class</span> <span class="fn">Child</span>(Left, Right):
+    <span class="kw">def</span> <span class="fn">setup</span>(self):
+        <span class="fn">print</span>(<span class="st">"Child.setup"</span>)
+        <span class="fn">super</span>().<span class="fn">setup</span>()
+
+<span class="fn">Child</span>().<span class="fn">setup</span>()
+<span class="out"># Child.setup
+# Left.setup
+# Right.setup
+# Base.setup    ← called only ONCE thanks to C3</span></pre>
+</div>
+
+<!-- ===== 9. TYPE ENFORCEMENT ===== -->
+<div class="section" id="s9">
+  <div class="section-number">Section 09</div>
+  <h2>Type Enforcement</h2>
+  <p>Python is dynamically typed by default. You can add <strong>type hints</strong> (PEP 484) for documentation and static analysis, but they're not enforced at runtime unless you use tools like <strong>mypy</strong> or runtime checkers like <strong>pydantic</strong> or <strong>beartype</strong>.</p>
+
+<pre><span class="cm"># Type hints — NOT enforced at runtime</span>
+<span class="kw">def</span> <span class="fn">greet</span>(name: <span class="nb">str</span>, times: <span class="nb">int</span>) -> <span class="nb">str</span>:
+    <span class="kw">return</span> name * times
+
+<span class="fn">print</span>(<span class="fn">greet</span>(<span class="st">"Hi"</span>, <span class="num">3</span>))    <span class="cm"># HiHiHi</span>
+<span class="fn">print</span>(<span class="fn">greet</span>(<span class="num">42</span>, <span class="num">2</span>))      <span class="cm"># 84 — no error! Python doesn't enforce it</span></pre>
+
+<pre><span class="cm"># Manual enforcement with isinstance</span>
+<span class="kw">def</span> <span class="fn">add</span>(a, b):
+    <span class="kw">if not</span> <span class="fn">isinstance</span>(a, (<span class="nb">int</span>, <span class="nb">float</span>)) <span class="kw">or not</span> <span class="fn">isinstance</span>(b, (<span class="nb">int</span>, <span class="nb">float</span>)):
+        <span class="kw">raise</span> <span class="nb">TypeError</span>(<span class="st">"Both arguments must be numbers"</span>)
+    <span class="kw">return</span> a + b</pre>
+
+<pre><span class="cm"># Runtime enforcement with dataclasses + __post_init__</span>
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+<span class="dec">@dataclass</span>
+<span class="kw">class</span> <span class="fn">Point</span>:
+    x: <span class="nb">float</span>
+    y: <span class="nb">float</span>
+
+    <span class="kw">def</span> <span class="fn">__post_init__</span>(self):
+        <span class="kw">if not</span> <span class="fn">isinstance</span>(self.x, (<span class="nb">int</span>, <span class="nb">float</span>)):
+            <span class="kw">raise</span> <span class="nb">TypeError</span>(<span class="st">f"x must be a number, got </span>{<span class="fn">type</span>(self.x)}<span class="st">"</span>)</pre>
+
+<pre><span class="cm"># Pydantic — the gold standard for runtime validation</span>
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+
+<span class="kw">class</span> <span class="fn">User</span>(BaseModel):
+    name: <span class="nb">str</span>
+    age: <span class="nb">int</span>
+    email: <span class="nb">str</span>
+
+user = <span class="fn">User</span>(name=<span class="st">"Alice"</span>, age=<span class="num">30</span>, email=<span class="st">"a@b.com"</span>)   <span class="cm"># OK</span>
+<span class="cm"># User(name="Alice", age="not a number", email="a@b.com")  # ValidationError!</span></pre>
+</div>
+
+<!-- ===== 10. EXCEPTION RETHROW ===== -->
+<div class="section" id="s10">
+  <div class="section-number">Section 10</div>
+  <h2>Exception Rethrow</h2>
+  <p>Yes. Use bare <code>raise</code> to re-raise the current exception, preserving the original traceback. You can also chain exceptions with <code>raise ... from ...</code>.</p>
+
+<pre><span class="cm"># Basic rethrow with bare raise</span>
+<span class="kw">def</span> <span class="fn">process</span>(data):
+    <span class="kw">try</span>:
+        result = <span class="num">100</span> / data
+    <span class="kw">except</span> <span class="nb">ZeroDivisionError</span>:
+        <span class="fn">print</span>(<span class="st">"Logging: division by zero occurred"</span>)
+        <span class="kw">raise</span>   <span class="cm"># re-raises the ZeroDivisionError with original traceback</span>
+
+<span class="kw">try</span>:
+    <span class="fn">process</span>(<span class="num">0</span>)
+<span class="kw">except</span> <span class="nb">ZeroDivisionError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="st">f"Caught: </span>{e}<span class="st">"</span>)
+<span class="out"># Logging: division by zero occurred
+# Caught: division by zero</span></pre>
+
+<pre><span class="cm"># Exception chaining: raise ... from ...</span>
+<span class="kw">class</span> <span class="fn">AppError</span>(<span class="nb">Exception</span>):
+    <span class="kw">pass</span>
+
+<span class="kw">def</span> <span class="fn">load_config</span>(path):
+    <span class="kw">try</span>:
+        <span class="kw">with</span> <span class="fn">open</span>(path) <span class="kw">as</span> f:
+            <span class="kw">return</span> f.<span class="fn">read</span>()
+    <span class="kw">except</span> <span class="nb">FileNotFoundError</span> <span class="kw">as</span> e:
+        <span class="kw">raise</span> <span class="fn">AppError</span>(<span class="st">f"Config missing: </span>{path}<span class="st">"</span>) <span class="kw">from</span> e
+        <span class="cm"># Original exception is preserved as __cause__</span></pre>
+
+<pre><span class="cm"># Suppress original chain: raise ... from None</span>
+<span class="kw">try</span>:
+    <span class="fn">int</span>(<span class="st">"abc"</span>)
+<span class="kw">except</span> <span class="nb">ValueError</span>:
+    <span class="kw">raise</span> <span class="nb">RuntimeError</span>(<span class="st">"Invalid input"</span>) <span class="kw">from</span> <span class="nb">None</span>
+    <span class="cm"># Clean traceback without "During handling of..." message</span></pre>
+</div>
+
+<!-- ===== 11. HASHSET ===== -->
+<div class="section" id="s11">
+  <div class="section-number">Section 11</div>
+  <h2>HashSet</h2>
+  <p>Python's built-in <strong>set</strong> is a hash set — an unordered collection of unique, hashable elements with O(1) average-case lookups.</p>
+
+<pre><span class="cm"># Creating sets</span>
+s = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">2</span>}
+<span class="fn">print</span>(s)           <span class="cm"># {1, 2, 3} — duplicates removed</span>
+
+empty = <span class="fn">set</span>()      <span class="cm"># NOT {} — that's an empty dict</span>
+
+from_list = <span class="fn">set</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>])
+<span class="fn">print</span>(from_list)    <span class="cm"># {1, 2, 3}</span></pre>
+
+<pre><span class="cm"># Common operations</span>
+s.<span class="fn">add</span>(<span class="num">4</span>)
+s.<span class="fn">discard</span>(<span class="num">2</span>)       <span class="cm"># remove (no error if missing)</span>
+<span class="fn">print</span>(<span class="num">3</span> <span class="kw">in</span> s)       <span class="cm"># True — O(1) membership test</span>
+
+<span class="cm"># Set operations</span>
+a = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+b = {<span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>}
+<span class="fn">print</span>(a | b)   <span class="cm"># {1, 2, 3, 4}  — union</span>
+<span class="fn">print</span>(a & b)   <span class="cm"># {2, 3}        — intersection</span>
+<span class="fn">print</span>(a - b)   <span class="cm"># {1}           — difference</span>
+<span class="fn">print</span>(a ^ b)   <span class="cm"># {1, 4}        — symmetric difference</span></pre>
+
+<pre><span class="cm"># Practical: removing duplicates while preserving order</span>
+items = [<span class="st">"b"</span>, <span class="st">"a"</span>, <span class="st">"c"</span>, <span class="st">"a"</span>, <span class="st">"b"</span>]
+seen = <span class="fn">set</span>()
+unique = []
+<span class="kw">for</span> item <span class="kw">in</span> items:
+    <span class="kw">if</span> item <span class="kw">not in</span> seen:
+        seen.<span class="fn">add</span>(item)
+        unique.<span class="fn">append</span>(item)
+<span class="fn">print</span>(unique)  <span class="cm"># ['b', 'a', 'c']</span></pre>
+
+  <div class="note"><strong>frozenset</strong> is the immutable variant — it's hashable itself, so you can use frozensets as dict keys or put them inside other sets.</div>
+</div>
+
+<!-- ===== 12. CLOSURES ===== -->
+<div class="section" id="s12">
+  <div class="section-number">Section 12</div>
+  <h2>Closures</h2>
+  <p>A <strong>closure</strong> is a nested function that captures and remembers variables from its enclosing scope, even after that scope has finished executing.</p>
+
+<pre><span class="kw">def</span> <span class="fn">make_multiplier</span>(factor):
+    <span class="kw">def</span> <span class="fn">multiply</span>(x):
+        <span class="kw">return</span> x * factor   <span class="cm"># 'factor' is captured from the enclosing scope</span>
+    <span class="kw">return</span> multiply
+
+double = <span class="fn">make_multiplier</span>(<span class="num">2</span>)
+triple = <span class="fn">make_multiplier</span>(<span class="num">3</span>)
+
+<span class="fn">print</span>(<span class="fn">double</span>(<span class="num">5</span>))   <span class="cm"># 10</span>
+<span class="fn">print</span>(<span class="fn">triple</span>(<span class="num">5</span>))   <span class="cm"># 15</span>
+
+<span class="cm"># The closure "remembers" factor even after make_multiplier returned</span>
+<span class="fn">print</span>(double.__closure__[<span class="num">0</span>].cell_contents)  <span class="cm"># 2</span></pre>
+
+<pre><span class="cm"># Closure with mutable state (use nonlocal)</span>
+<span class="kw">def</span> <span class="fn">make_counter</span>():
+    count = <span class="num">0</span>
+    <span class="kw">def</span> <span class="fn">increment</span>():
+        <span class="kw">nonlocal</span> count
+        count += <span class="num">1</span>
+        <span class="kw">return</span> count
+    <span class="kw">return</span> increment
+
+counter = <span class="fn">make_counter</span>()
+<span class="fn">print</span>(<span class="fn">counter</span>())  <span class="cm"># 1</span>
+<span class="fn">print</span>(<span class="fn">counter</span>())  <span class="cm"># 2</span>
+<span class="fn">print</span>(<span class="fn">counter</span>())  <span class="cm"># 3</span></pre>
+</div>
+
+<!-- ===== 13. CLOSURE USE CASES ===== -->
+<div class="section" id="s13">
+  <div class="section-number">Section 13</div>
+  <h2>Closure Use Cases</h2>
+  <p>Closures shine when you need lightweight, stateful functions without creating a full class.</p>
+
+<pre><span class="cm"># 1. Function factories</span>
+<span class="kw">def</span> <span class="fn">make_formatter</span>(prefix, suffix):
+    <span class="kw">def</span> <span class="fn">fmt</span>(text):
+        <span class="kw">return</span> <span class="st">f"</span>{prefix}{text}{suffix}<span class="st">"</span>
+    <span class="kw">return</span> fmt
+
+html_bold = <span class="fn">make_formatter</span>(<span class="st">"&lt;b&gt;"</span>, <span class="st">"&lt;/b&gt;"</span>)
+<span class="fn">print</span>(<span class="fn">html_bold</span>(<span class="st">"hello"</span>))   <span class="cm"># &lt;b&gt;hello&lt;/b&gt;</span></pre>
+
+<pre><span class="cm"># 2. Callbacks / event handlers</span>
+<span class="kw">def</span> <span class="fn">make_handler</span>(action):
+    <span class="kw">def</span> <span class="fn">handler</span>(event):
+        <span class="fn">print</span>(<span class="st">f"Handling </span>{action}<span class="st"> for event: </span>{event}<span class="st">"</span>)
+    <span class="kw">return</span> handler
+
+on_click = <span class="fn">make_handler</span>(<span class="st">"click"</span>)
+<span class="fn">on_click</span>(<span class="st">"button_submit"</span>)
+<span class="out"># Handling click for event: button_submit</span></pre>
+
+<pre><span class="cm"># 3. Memoization / caching</span>
+<span class="kw">def</span> <span class="fn">memoize</span>(func):
+    cache = {}
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args):
+        <span class="kw">if</span> args <span class="kw">not in</span> cache:
+            cache[args] = <span class="fn">func</span>(*args)
+        <span class="kw">return</span> cache[args]
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@memoize</span>
+<span class="kw">def</span> <span class="fn">fib</span>(n):
+    <span class="kw">if</span> n < <span class="num">2</span>: <span class="kw">return</span> n
+    <span class="kw">return</span> <span class="fn">fib</span>(n - <span class="num">1</span>) + <span class="fn">fib</span>(n - <span class="num">2</span>)
+
+<span class="fn">print</span>(<span class="fn">fib</span>(<span class="num">50</span>))  <span class="cm"># 12586269025 — instant with memoization</span></pre>
+
+<pre><span class="cm"># 4. Configuration / partial application</span>
+<span class="kw">def</span> <span class="fn">make_logger</span>(level):
+    <span class="kw">def</span> <span class="fn">log</span>(message):
+        <span class="fn">print</span>(<span class="st">f"[</span>{level.<span class="fn">upper</span>()}<span class="st">] </span>{message}<span class="st">"</span>)
+    <span class="kw">return</span> log
+
+warn = <span class="fn">make_logger</span>(<span class="st">"warning"</span>)
+<span class="fn">warn</span>(<span class="st">"disk space low"</span>)
+<span class="out"># [WARNING] disk space low</span></pre>
+</div>
+
+<!-- ===== 14. DECORATORS ===== -->
+<div class="section" id="s14">
+  <div class="section-number">Section 14</div>
+  <h2>Decorators</h2>
+  <p>A <strong>decorator</strong> is a function that wraps another function to extend its behavior. It's syntactic sugar built on closures. The <code>@decorator</code> syntax is equivalent to <code>func = decorator(func)</code>.</p>
+
+<pre><span class="cm"># Basic decorator</span>
+<span class="kw">import</span> time
+<span class="kw">from</span> functools <span class="kw">import</span> wraps
+
+<span class="kw">def</span> <span class="fn">timer</span>(func):
+    <span class="dec">@wraps</span>(func)     <span class="cm"># preserves func.__name__, __doc__, etc.</span>
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        start = time.<span class="fn">perf_counter</span>()
+        result = <span class="fn">func</span>(*args, **kwargs)
+        elapsed = time.<span class="fn">perf_counter</span>() - start
+        <span class="fn">print</span>(<span class="st">f"</span>{func.__name__} took {elapsed:.4f}s<span class="st">"</span>)
+        <span class="kw">return</span> result
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@timer</span>
+<span class="kw">def</span> <span class="fn">slow_add</span>(a, b):
+    time.<span class="fn">sleep</span>(<span class="num">0.1</span>)
+    <span class="kw">return</span> a + b
+
+<span class="fn">print</span>(<span class="fn">slow_add</span>(<span class="num">2</span>, <span class="num">3</span>))
+<span class="out"># slow_add took 0.1003s
+# 5</span></pre>
+
+<pre><span class="cm"># Decorator WITH arguments</span>
+<span class="kw">def</span> <span class="fn">repeat</span>(n):
+    <span class="kw">def</span> <span class="fn">decorator</span>(func):
+        <span class="dec">@wraps</span>(func)
+        <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+            <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(n):
+                result = <span class="fn">func</span>(*args, **kwargs)
+            <span class="kw">return</span> result
+        <span class="kw">return</span> wrapper
+    <span class="kw">return</span> decorator
+
+<span class="dec">@repeat(<span class="num">3</span>)</span>
+<span class="kw">def</span> <span class="fn">say_hello</span>(name):
+    <span class="fn">print</span>(<span class="st">f"Hello, </span>{name}<span class="st">!"</span>)
+
+<span class="fn">say_hello</span>(<span class="st">"Alice"</span>)
+<span class="out"># Hello, Alice!
+# Hello, Alice!
+# Hello, Alice!</span></pre>
+
+<pre><span class="cm"># Stacking decorators</span>
+<span class="kw">def</span> <span class="fn">bold</span>(func):
+    <span class="dec">@wraps</span>(func)
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*a, **kw):
+        <span class="kw">return</span> <span class="st">f"&lt;b&gt;</span>{<span class="fn">func</span>(*a, **kw)}<span class="st">&lt;/b&gt;"</span>
+    <span class="kw">return</span> wrapper
+
+<span class="kw">def</span> <span class="fn">italic</span>(func):
+    <span class="dec">@wraps</span>(func)
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*a, **kw):
+        <span class="kw">return</span> <span class="st">f"&lt;i&gt;</span>{<span class="fn">func</span>(*a, **kw)}<span class="st">&lt;/i&gt;"</span>
+    <span class="kw">return</span> wrapper
+
+<span class="dec">@bold</span>
+<span class="dec">@italic</span>
+<span class="kw">def</span> <span class="fn">greet</span>(name):
+    <span class="kw">return</span> <span class="st">f"Hello, </span>{name}<span class="st">"</span>
+
+<span class="fn">print</span>(<span class="fn">greet</span>(<span class="st">"World"</span>))
+<span class="out"># &lt;b&gt;&lt;i&gt;Hello, World&lt;/i&gt;&lt;/b&gt;</span></pre>
+</div>
+
+<!-- ===== 15. MULTITHREADING & MULTIPROCESSING ===== -->
+<div class="section" id="s15">
+  <div class="section-number">Section 15</div>
+  <h2>Multithreading &amp; Multiprocessing</h2>
+  <p><strong>Threading</strong> uses OS threads sharing the same memory space — good for I/O-bound work but limited by the GIL for CPU-bound tasks. <strong>Multiprocessing</strong> spawns separate processes with their own memory — true parallelism for CPU-bound work.</p>
+
+<pre><span class="cm"># Threading — good for I/O-bound tasks</span>
+<span class="kw">import</span> threading
+<span class="kw">import</span> time
+
+<span class="kw">def</span> <span class="fn">download</span>(url):
+    <span class="fn">print</span>(<span class="st">f"Downloading </span>{url}<span class="st">..."</span>)
+    time.<span class="fn">sleep</span>(<span class="num">1</span>)   <span class="cm"># simulate I/O</span>
+    <span class="fn">print</span>(<span class="st">f"Done: </span>{url}<span class="st">"</span>)
+
+urls = [<span class="st">"page1.html"</span>, <span class="st">"page2.html"</span>, <span class="st">"page3.html"</span>]
+threads = [threading.<span class="fn">Thread</span>(target=download, args=(u,)) <span class="kw">for</span> u <span class="kw">in</span> urls]
+
+<span class="kw">for</span> t <span class="kw">in</span> threads: t.<span class="fn">start</span>()
+<span class="kw">for</span> t <span class="kw">in</span> threads: t.<span class="fn">join</span>()
+<span class="cm"># All 3 run concurrently — total ≈ 1s, not 3s</span></pre>
+
+<pre><span class="cm"># Multiprocessing — good for CPU-bound tasks</span>
+<span class="kw">from</span> multiprocessing <span class="kw">import</span> Pool
+
+<span class="kw">def</span> <span class="fn">heavy_math</span>(n):
+    <span class="kw">return</span> <span class="fn">sum</span>(i * i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n))
+
+<span class="kw">with</span> <span class="fn">Pool</span>(<span class="num">4</span>) <span class="kw">as</span> pool:
+    results = pool.<span class="fn">map</span>(heavy_math, [<span class="num">10_000_000</span>] * <span class="num">4</span>)
+    <span class="fn">print</span>(results)  <span class="cm"># 4 results computed in parallel</span></pre>
+
+<pre><span class="cm"># asyncio — async/await for high-concurrency I/O</span>
+<span class="kw">import</span> asyncio
+
+<span class="kw">async def</span> <span class="fn">fetch</span>(name, delay):
+    <span class="fn">print</span>(<span class="st">f"Start </span>{name}<span class="st">"</span>)
+    <span class="kw">await</span> asyncio.<span class="fn">sleep</span>(delay)
+    <span class="fn">print</span>(<span class="st">f"Done </span>{name}<span class="st">"</span>)
+    <span class="kw">return</span> name
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    results = <span class="kw">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">fetch</span>(<span class="st">"A"</span>, <span class="num">2</span>),
+        <span class="fn">fetch</span>(<span class="st">"B"</span>, <span class="num">1</span>),
+        <span class="fn">fetch</span>(<span class="st">"C"</span>, <span class="num">1.5</span>),
+    )
+    <span class="fn">print</span>(results)  <span class="cm"># ['A', 'B', 'C']</span>
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())
+<span class="out"># All 3 run concurrently — total ≈ 2s</span></pre>
+</div>
+
+<!-- ===== 16. GIL REMOVAL ===== -->
+<div class="section" id="s16">
+  <div class="section-number">Section 16</div>
+  <h2>GIL Removal</h2>
+  <p>The <strong>GIL (Global Interpreter Lock)</strong> has been Python's biggest concurrency limitation. As of Python 3.13 (2024), an <strong>experimental free-threaded build</strong> (PEP 703) ships that can disable the GIL. It's opt-in and not yet the default.</p>
+
+<pre><span class="cm"># The GIL means only one thread executes Python bytecode at a time.
+# This is why threading doesn't speed up CPU-bound code:
+
+import threading, time
+
+def count(n):
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+# Even with 4 threads, this is NOT faster than sequential
+# because the GIL serializes the Python bytecode execution.
+# Use multiprocessing for CPU-bound work instead.
+
+# Python 3.13+ free-threaded mode:
+# Install: python3.13t (the "t" suffix)
+# Run:     python3.13t -Xgil=0 script.py
+# Or set:  PYTHON_GIL=0</span></pre>
+
+  <div class="note"><strong>Status (3.13):</strong> Experimental. Many C extensions don't yet support free-threading. The plan is to make it the default over several releases. For now, <code>multiprocessing</code> and <code>asyncio</code> remain the practical solutions.</div>
+</div>
+
+<!-- ===== 17. RECENT PYTHON FEATURES ===== -->
+<div class="section" id="s17">
+  <div class="section-number">Section 17</div>
+  <h2>Recent Python Features (3.8 – 3.13)</h2>
+  <p>A high-level tour of the most impactful additions across recent Python versions.</p>
+
+<pre><span class="cm"># 3.8 — Walrus operator (:=)</span>
+data = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>]
+big = [x <span class="kw">for</span> x <span class="kw">in</span> data <span class="kw">if</span> (sq := x**<span class="num">2</span>) > <span class="num">10</span>]
+<span class="fn">print</span>(big)  <span class="cm"># [4, 5, 6]</span>
+
+<span class="cm"># 3.8 — Positional-only parameters (see section 21)</span>
+<span class="kw">def</span> <span class="fn">f</span>(a, b, /, c):  ...
+
+<span class="cm"># 3.9 — Dict merge operators</span>
+a = {<span class="st">"x"</span>: <span class="num">1</span>}; b = {<span class="st">"y"</span>: <span class="num">2</span>}
+merged = a | b            <span class="cm"># {'x': 1, 'y': 2}</span>
+a |= b                    <span class="cm"># in-place merge</span>
+
+<span class="cm"># 3.9 — Built-in generics (no more typing.List)</span>
+<span class="kw">def</span> <span class="fn">first</span>(items: <span class="nb">list</span>[<span class="nb">int</span>]) -> <span class="nb">int</span>:
+    <span class="kw">return</span> items[<span class="num">0</span>]</pre>
+
+<pre><span class="cm"># 3.10 — Structural pattern matching (see section 21)</span>
+<span class="kw">match</span> command:
+    <span class="kw">case</span> <span class="st">"quit"</span>:  ...
+    <span class="kw">case</span> <span class="st">"go"</span>, direction:  ...
+
+<span class="cm"># 3.10 — Union type with |</span>
+<span class="kw">def</span> <span class="fn">square</span>(n: <span class="nb">int</span> | <span class="nb">float</span>) -> <span class="nb">int</span> | <span class="nb">float</span>:
+    <span class="kw">return</span> n ** <span class="num">2</span>
+
+<span class="cm"># 3.11 — Exception groups & except*</span>
+<span class="kw">try</span>:
+    <span class="kw">raise</span> <span class="nb">ExceptionGroup</span>(<span class="st">"errors"</span>, [<span class="nb">ValueError</span>(<span class="st">"a"</span>), <span class="nb">TypeError</span>(<span class="st">"b"</span>)])
+<span class="kw">except*</span> <span class="nb">ValueError</span> <span class="kw">as</span> eg:
+    <span class="fn">print</span>(<span class="st">"Caught ValueErrors:"</span>, eg.exceptions)</pre>
+
+<pre><span class="cm"># 3.12 — Type parameter syntax (see section 19)</span>
+<span class="kw">def</span> <span class="fn">first</span>[T](items: <span class="nb">list</span>[T]) -> T:
+    <span class="kw">return</span> items[<span class="num">0</span>]
+
+<span class="cm"># 3.12 — Improved f-strings (nested quotes allowed)</span>
+matrix = [[<span class="num">1</span>, <span class="num">2</span>], [<span class="num">3</span>, <span class="num">4</span>]]
+<span class="fn">print</span>(<span class="st">f"Flat: </span>{[x <span class="kw">for</span> row <span class="kw">in</span> matrix <span class="kw">for</span> x <span class="kw">in</span> row]}<span class="st">"</span>)
+
+<span class="cm"># 3.13 — Free-threaded mode (experimental, see section 16)</span>
+<span class="cm"># 3.13 — Improved error messages, better REPL</span></pre>
+</div>
+
+<!-- ===== 18. F-STRINGS ===== -->
+<div class="section" id="s18">
+  <div class="section-number">Section 18</div>
+  <h2>f-strings</h2>
+  <p><strong>f-strings</strong> (formatted string literals, PEP 498, Python 3.6+) let you embed expressions inside string literals using <code>{}</code> brackets. They're fast, readable, and the preferred way to format strings.</p>
+
+<pre><span class="cm"># Basics</span>
+name = <span class="st">"Alice"</span>
+age = <span class="num">30</span>
+<span class="fn">print</span>(<span class="st">f"</span>{name} is {age} years old<span class="st">"</span>)
+<span class="out"># Alice is 30 years old</span>
+
+<span class="cm"># Expressions inside braces</span>
+<span class="fn">print</span>(<span class="st">f"</span>{name.upper()} will be {age + <span class="num">1</span>} next year<span class="st">"</span>)
+<span class="out"># ALICE will be 31 next year</span></pre>
+
+<pre><span class="cm"># Format specifiers</span>
+pi = <span class="num">3.14159265</span>
+<span class="fn">print</span>(<span class="st">f"Pi ≈ </span>{pi:<span class="num">.2f</span>}<span class="st">"</span>)          <span class="cm"># Pi ≈ 3.14</span>
+<span class="fn">print</span>(<span class="st">f"Big: </span>{<span class="num">1000000</span>:<span class="num">,</span>}<span class="st">"</span>)         <span class="cm"># Big: 1,000,000</span>
+<span class="fn">print</span>(<span class="st">f"Percent: </span>{<span class="num">0.856</span>:<span class="num">.1%</span>}<span class="st">"</span>)    <span class="cm"># Percent: 85.6%</span>
+<span class="fn">print</span>(<span class="st">f"Padded: </span>{<span class="num">42</span>:<span class="num">05d</span>}<span class="st">"</span>)        <span class="cm"># Padded: 00042</span>
+<span class="fn">print</span>(<span class="st">f"Left:  '</span>{name:<span class="num">&lt;10</span>}<span class="st">'"</span>)      <span class="cm"># Left:  'Alice     '</span>
+<span class="fn">print</span>(<span class="st">f"Right: '</span>{name:<span class="num">&gt;10</span>}<span class="st">'"</span>)      <span class="cm"># Right: '     Alice'</span></pre>
+
+<pre><span class="cm"># Debug format (3.8+) — prints expression AND value</span>
+x = <span class="num">42</span>
+<span class="fn">print</span>(<span class="st">f"</span>{x = }<span class="st">"</span>)              <span class="cm"># x = 42</span>
+<span class="fn">print</span>(<span class="st">f"</span>{x * <span class="num">2</span> = }<span class="st">"</span>)          <span class="cm"># x * 2 = 84</span>
+
+<span class="cm"># Multiline f-strings</span>
+record = {<span class="st">"name"</span>: <span class="st">"Alice"</span>, <span class="st">"dept"</span>: <span class="st">"Engineering"</span>}
+msg = (
+    <span class="st">f"Employee: </span>{record[<span class="st">'name'</span>]}<span class="st">\n"</span>
+    <span class="st">f"Department: </span>{record[<span class="st">'dept'</span>]}<span class="st">"</span>
+)
+<span class="fn">print</span>(msg)</pre>
+</div>
+
+<!-- ===== 19. TYPE-PARAMETER SYNTAX (3.12) ===== -->
+<div class="section" id="s19">
+  <div class="section-number">Section 19</div>
+  <h2>New Type-Parameter Syntax (3.12)</h2>
+  <p>Python 3.12 introduced <strong>PEP 695</strong> — a cleaner syntax for generics. Instead of importing <code>TypeVar</code> and declaring it separately, you declare type parameters inline with square brackets.</p>
+
+<pre><span class="cm"># OLD way (pre-3.12) — verbose</span>
+<span class="kw">from</span> typing <span class="kw">import</span> TypeVar, Generic
+
+T = <span class="fn">TypeVar</span>(<span class="st">"T"</span>)
+
+<span class="kw">def</span> <span class="fn">first_old</span>(items: <span class="nb">list</span>[T]) -> T:
+    <span class="kw">return</span> items[<span class="num">0</span>]
+
+<span class="kw">class</span> <span class="fn">Stack_Old</span>(Generic[T]):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self) -> <span class="nb">None</span>:
+        self._items: <span class="nb">list</span>[T] = []
+    <span class="kw">def</span> <span class="fn">push</span>(self, item: T) -> <span class="nb">None</span>:
+        self._items.<span class="fn">append</span>(item)
+    <span class="kw">def</span> <span class="fn">pop</span>(self) -> T:
+        <span class="kw">return</span> self._items.<span class="fn">pop</span>()</pre>
+
+<pre><span class="cm"># NEW way (3.12+) — clean and inline</span>
+<span class="kw">def</span> <span class="fn">first</span>[T](items: <span class="nb">list</span>[T]) -> T:
+    <span class="kw">return</span> items[<span class="num">0</span>]
+
+<span class="kw">class</span> <span class="fn">Stack</span>[T]:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self) -> <span class="nb">None</span>:
+        self._items: <span class="nb">list</span>[T] = []
+    <span class="kw">def</span> <span class="fn">push</span>(self, item: T) -> <span class="nb">None</span>:
+        self._items.<span class="fn">append</span>(item)
+    <span class="kw">def</span> <span class="fn">pop</span>(self) -> T:
+        <span class="kw">return</span> self._items.<span class="fn">pop</span>()
+
+s = <span class="fn">Stack</span>[<span class="nb">int</span>]()
+s.<span class="fn">push</span>(<span class="num">1</span>)</pre>
+
+<pre><span class="cm"># Bounded type parameters</span>
+<span class="kw">def</span> <span class="fn">max_val</span>[T: (<span class="nb">int</span>, <span class="nb">float</span>)](a: T, b: T) -> T:
+    <span class="kw">return</span> a <span class="kw">if</span> a > b <span class="kw">else</span> b
+
+<span class="cm"># Type aliases (also new syntax)</span>
+<span class="kw">type</span> Point = <span class="nb">tuple</span>[<span class="nb">float</span>, <span class="nb">float</span>]
+<span class="kw">type</span> Matrix[T] = <span class="nb">list</span>[<span class="nb">list</span>[T]]</pre>
+</div>
+
+<!-- ===== 20. RECAP OF 3.8/3.9/3.10 ===== -->
+<div class="section" id="s20">
+  <div class="section-number">Section 20</div>
+  <h2>Recap of 3.8 / 3.9 / 3.10</h2>
+
+  <p><strong>Python 3.8</strong> highlights:</p>
+<pre><span class="cm"># Walrus operator (:=) — assign inside expressions</span>
+<span class="kw">while</span> (line := <span class="fn">input</span>(<span class="st">"&gt; "</span>)) != <span class="st">"quit"</span>:
+    <span class="fn">print</span>(<span class="st">f"You said: </span>{line}<span class="st">"</span>)
+
+<span class="cm"># Positional-only parameters</span>
+<span class="kw">def</span> <span class="fn">pow</span>(base, exp, /, mod=<span class="nb">None</span>):
+    ...   <span class="cm"># base and exp must be positional</span>
+
+<span class="cm"># f-string =  for debugging</span>
+x = <span class="num">10</span>
+<span class="fn">print</span>(<span class="st">f"</span>{x = }, {x**<span class="num">2</span> = }<span class="st">"</span>)  <span class="cm"># x = 10, x**2 = 100</span>
+
+<span class="cm"># typing.Final and typing.Literal</span>
+<span class="kw">from</span> typing <span class="kw">import</span> Final, Literal
+MAX: Final = <span class="num">100</span>
+<span class="kw">def</span> <span class="fn">direction</span>(d: Literal[<span class="st">"N"</span>, <span class="st">"S"</span>, <span class="st">"E"</span>, <span class="st">"W"</span>]): ...</pre>
+
+  <p><strong>Python 3.9</strong> highlights:</p>
+<pre><span class="cm"># Built-in generics — no more from typing import List, Dict</span>
+<span class="kw">def</span> <span class="fn">process</span>(items: <span class="nb">list</span>[<span class="nb">int</span>]) -> <span class="nb">dict</span>[<span class="nb">str</span>, <span class="nb">int</span>]:
+    <span class="kw">return</span> {<span class="fn">str</span>(i): i <span class="kw">for</span> i <span class="kw">in</span> items}
+
+<span class="cm"># Dictionary merge (|) and update (|=)</span>
+defaults = {<span class="st">"color"</span>: <span class="st">"blue"</span>, <span class="st">"size"</span>: <span class="st">"M"</span>}
+custom = {<span class="st">"size"</span>: <span class="st">"L"</span>, <span class="st">"qty"</span>: <span class="num">2</span>}
+config = defaults | custom    <span class="cm"># {'color': 'blue', 'size': 'L', 'qty': 2}</span>
+
+<span class="cm"># String removeprefix / removesuffix</span>
+<span class="st">"HelloWorld"</span>.<span class="fn">removeprefix</span>(<span class="st">"Hello"</span>)   <span class="cm"># "World"</span>
+<span class="st">"test_file.py"</span>.<span class="fn">removesuffix</span>(<span class="st">".py"</span>)    <span class="cm"># "test_file"</span></pre>
+
+  <p><strong>Python 3.10</strong> highlights:</p>
+<pre><span class="cm"># Structural pattern matching (full examples in section 21)</span>
+<span class="kw">match</span> status:
+    <span class="kw">case</span> <span class="num">200</span>: <span class="fn">print</span>(<span class="st">"OK"</span>)
+    <span class="kw">case</span> <span class="num">404</span>: <span class="fn">print</span>(<span class="st">"Not Found"</span>)
+    <span class="kw">case</span> _:   <span class="fn">print</span>(<span class="st">"Other"</span>)
+
+<span class="cm"># Union type shorthand: int | str instead of Union[int, str]</span>
+<span class="kw">def</span> <span class="fn">display</span>(val: <span class="nb">int</span> | <span class="nb">str</span>) -> <span class="nb">None</span>:
+    <span class="fn">print</span>(val)
+
+<span class="cm"># Parenthesized context managers</span>
+<span class="kw">with</span> (
+    <span class="fn">open</span>(<span class="st">"in.txt"</span>) <span class="kw">as</span> src,
+    <span class="fn">open</span>(<span class="st">"out.txt"</span>, <span class="st">"w"</span>) <span class="kw">as</span> dst,
+):
+    dst.<span class="fn">write</span>(src.<span class="fn">read</span>())
+
+<span class="cm"># Improved error messages</span>
+<span class="cm"># "Did you mean 'append'?" when you typo 'lst.apend()'</span></pre>
+</div>
+
+<!-- ===== 21. POSITIONAL-ONLY & PATTERN MATCHING ===== -->
+<div class="section" id="s21">
+  <div class="section-number">Section 21</div>
+  <h2>Positional-Only Parameters &amp; Pattern Matching</h2>
+
+  <p><strong>Positional-only parameters (3.8+)</strong> — parameters before <code>/</code> in the signature can only be passed positionally, never as keyword arguments.</p>
+
+<pre><span class="cm"># Syntax:  def f(pos_only, /, normal, *, kw_only)</span>
+
+<span class="kw">def</span> <span class="fn">divide</span>(a, b, /, *, round_result=<span class="nb">False</span>):
+    result = a / b
+    <span class="kw">return</span> <span class="fn">round</span>(result) <span class="kw">if</span> round_result <span class="kw">else</span> result
+
+<span class="fn">divide</span>(<span class="num">10</span>, <span class="num">3</span>)                        <span class="cm"># OK</span>
+<span class="fn">divide</span>(<span class="num">10</span>, <span class="num">3</span>, round_result=<span class="nb">True</span>)     <span class="cm"># OK</span>
+<span class="cm"># divide(a=10, b=3)                   # TypeError! a and b are positional-only</span></pre>
+
+<pre><span class="cm"># Why use it?
+# 1. Parameter names become an implementation detail — you can rename freely
+# 2. Avoids conflicts when **kwargs collects keyword arguments
+# 3. Matches how builtins work (len, range, etc.)</span>
+
+<span class="kw">def</span> <span class="fn">my_func</span>(name, /, **kwargs):
+    <span class="fn">print</span>(name, kwargs)
+
+<span class="fn">my_func</span>(<span class="st">"Alice"</span>, name=<span class="st">"override"</span>)
+<span class="out"># Alice {'name': 'override'}
+# No conflict! 'name' as positional vs 'name' in kwargs</span></pre>
+
+  <p><strong>Pattern matching (3.10+)</strong> — Python's <code>match</code>/<code>case</code> goes far beyond a switch statement. It destructures, binds variables, and matches against types and structures.</p>
+
+<pre><span class="cm"># Literal matching</span>
+<span class="kw">def</span> <span class="fn">http_status</span>(code):
+    <span class="kw">match</span> code:
+        <span class="kw">case</span> <span class="num">200</span>:
+            <span class="kw">return</span> <span class="st">"OK"</span>
+        <span class="kw">case</span> <span class="num">301</span> | <span class="num">302</span>:            <span class="cm"># OR pattern</span>
+            <span class="kw">return</span> <span class="st">"Redirect"</span>
+        <span class="kw">case</span> <span class="num">404</span>:
+            <span class="kw">return</span> <span class="st">"Not Found"</span>
+        <span class="kw">case</span> _:                    <span class="cm"># wildcard (default)</span>
+            <span class="kw">return</span> <span class="st">"Unknown"</span></pre>
+
+<pre><span class="cm"># Sequence destructuring</span>
+<span class="kw">def</span> <span class="fn">handle_command</span>(command):
+    <span class="kw">match</span> command.<span class="fn">split</span>():
+        <span class="kw">case</span> [<span class="st">"go"</span>, direction]:
+            <span class="fn">print</span>(<span class="st">f"Moving </span>{direction}<span class="st">"</span>)
+        <span class="kw">case</span> [<span class="st">"pick"</span>, <span class="st">"up"</span>, item]:
+            <span class="fn">print</span>(<span class="st">f"Picking up </span>{item}<span class="st">"</span>)
+        <span class="kw">case</span> [<span class="st">"attack"</span>, *targets]:
+            <span class="fn">print</span>(<span class="st">f"Attacking: </span>{', '.<span class="fn">join</span>(targets)}<span class="st">"</span>)
+
+<span class="fn">handle_command</span>(<span class="st">"go north"</span>)          <span class="cm"># Moving north</span>
+<span class="fn">handle_command</span>(<span class="st">"pick up sword"</span>)     <span class="cm"># Picking up sword</span>
+<span class="fn">handle_command</span>(<span class="st">"attack orc dragon"</span>) <span class="cm"># Attacking: orc, dragon</span></pre>
+
+<pre><span class="cm"># Mapping (dict) patterns</span>
+<span class="kw">def</span> <span class="fn">process_event</span>(event):
+    <span class="kw">match</span> event:
+        <span class="kw">case</span> {<span class="st">"type"</span>: <span class="st">"click"</span>, <span class="st">"x"</span>: x, <span class="st">"y"</span>: y}:
+            <span class="fn">print</span>(<span class="st">f"Click at (</span>{x}<span class="st">, </span>{y}<span class="st">)"</span>)
+        <span class="kw">case</span> {<span class="st">"type"</span>: <span class="st">"keypress"</span>, <span class="st">"key"</span>: k}:
+            <span class="fn">print</span>(<span class="st">f"Key pressed: </span>{k}<span class="st">"</span>)
+
+<span class="fn">process_event</span>({<span class="st">"type"</span>: <span class="st">"click"</span>, <span class="st">"x"</span>: <span class="num">50</span>, <span class="st">"y"</span>: <span class="num">100</span>})
+<span class="out"># Click at (50, 100)</span></pre>
+
+<pre><span class="cm"># Class patterns with guards</span>
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+
+<span class="dec">@dataclass</span>
+<span class="kw">class</span> <span class="fn">Point</span>:
+    x: <span class="nb">float</span>
+    y: <span class="nb">float</span>
+
+<span class="kw">def</span> <span class="fn">describe</span>(point):
+    <span class="kw">match</span> point:
+        <span class="kw">case</span> <span class="fn">Point</span>(x=<span class="num">0</span>, y=<span class="num">0</span>):
+            <span class="kw">return</span> <span class="st">"Origin"</span>
+        <span class="kw">case</span> <span class="fn">Point</span>(x=x, y=<span class="num">0</span>):
+            <span class="kw">return</span> <span class="st">f"On x-axis at </span>{x}<span class="st">"</span>
+        <span class="kw">case</span> <span class="fn">Point</span>(x=x, y=y) <span class="kw">if</span> x == y:       <span class="cm"># guard clause</span>
+            <span class="kw">return</span> <span class="st">f"On diagonal at </span>{x}<span class="st">"</span>
+        <span class="kw">case</span> <span class="fn">Point</span>(x=x, y=y):
+            <span class="kw">return</span> <span class="st">f"Point(</span>{x}<span class="st">, </span>{y}<span class="st">)"</span>
+
+<span class="fn">print</span>(<span class="fn">describe</span>(<span class="fn">Point</span>(<span class="num">0</span>, <span class="num">0</span>)))     <span class="cm"># Origin</span>
+<span class="fn">print</span>(<span class="fn">describe</span>(<span class="fn">Point</span>(<span class="num">5</span>, <span class="num">0</span>)))     <span class="cm"># On x-axis at 5</span>
+<span class="fn">print</span>(<span class="fn">describe</span>(<span class="fn">Point</span>(<span class="num">3</span>, <span class="num">3</span>)))     <span class="cm"># On diagonal at 3</span>
+<span class="fn">print</span>(<span class="fn">describe</span>(<span class="fn">Point</span>(<span class="num">1</span>, <span class="num">7</span>)))     <span class="cm"># Point(1, 7)</span></pre>
+</div>
+
+</div><!-- /content -->
+</body>
+</html></section>
+
+  <nav
+    class="mt-24 flex overflow-hidden rounded-xl bg-black/[3%] text-lg leading-[1.2]! *:flex *:w-1/2 *:items-center *:p-5 *:font-medium *:no-underline dark:bg-white/[8%] [&>*:hover]:bg-black/[2%] dark:[&>*:hover]:bg-white/[3%]"
+  ><a
+      class="justify-end pl-3 ltr:ml-auto rtl:mr-auto"
+      href="//localhost:1313/posts/20260510-multi-turn-llm-workflow/"
+      ><span>Building a Multi-Turn LLM Tool-Calling Pipeline: What I Learned</span><span class="ltr:ml-1.5 rtl:mr-1.5">→</span></a
+    ></nav></article></main><footer
+  class="mx-auto flex h-[4.5rem] max-w-(--w) items-center px-8 text-xs tracking-wider uppercase opacity-60"
+>
+  <div class="mr-auto">&copy;2026
+    <a class="link" href="//localhost:1313/">Yiwei Shi</a></div>
+  <a class="link mx-6" href="https://gohugo.io/" rel="noopener" target="_blank"
+    >powered by hugo️️</a
+  >️
+  <a
+    class="link"
+    href="https://github.com/nanxiaobei/hugo-paper"
+    rel="noopener"
+    target="_blank"
+    >hugo-paper</a
+  >
+</footer>
+</body>
+</html>
