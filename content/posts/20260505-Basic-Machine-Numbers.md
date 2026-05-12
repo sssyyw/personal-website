@@ -2,6 +2,7 @@
 date = '2026-05-05T22:52:48-04:00'
 draft = false
 title = 'Back-of-the-Envelope Numbers Every System Designer Should Know'
+tags = ['system']
 +++
 
 When you're sketching a system architecture on a whiteboard, you don't need precise benchmarks — you need to know whether your design is within an order of magnitude of feasible. Is one Postgres node enough? Do you need Kafka, or will RabbitMQ do? Should you reach for Cassandra, or is your workload nowhere near needing it?

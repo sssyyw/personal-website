@@ -2,6 +2,7 @@
 date = '2026-05-11T22:52:17-04:00'
 draft = false
 title = 'Modern Real-Time OLAP Systems: ClickHouse is Winning'
+tags = ['database', 'distributed systems']
 +++
 
 A comparison of ClickHouse, StarRocks, Apache Druid, and Apache Pinot — the four engines defining real-time analytics in 2026.
