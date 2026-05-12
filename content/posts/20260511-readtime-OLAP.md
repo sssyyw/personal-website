@@ -4,209 +4,205 @@ draft = false
 title = 'Modern Real-Time OLAP Systems: ClickHouse is Winning'
 +++
 
-Comparative Analysis of Modern Real-Time OLAP Systems: Architectural Paradigms and Performance Dynamics of ClickHouse, StarRocks, Apache Druid, and Apache Pinot
-1. The Paradigm Shift in Analytical Processing
-The theoretical and practical foundations of data analytics have undergone a profound transformation in the modern computational era, pivoting away from retrospective, batch-oriented processing toward real-time, highly concurrent analytical serving. Historically, enterprise data architectures relied upon a rigid bifurcation: transactional databases (OLTP systems such as PostgreSQL or MySQL) managed the operational logic and state of the application, while monolithic, cloud-based data warehouses (such as Snowflake, Google BigQuery, or Amazon Redshift) served as the central repositories for internal business intelligence and reporting.1 In this traditional paradigm, data freshness was typically measured in days or, at best, hours, constrained by the latency of complex Extract, Transform, Load (ETL) pipelines.3
-However, the proliferation of user-facing analytics, automated operational intelligence, and artificial intelligence-driven contextual applications has exposed the inherent latency and concurrency limitations of batch-oriented warehouse systems.1 In contemporary workloads, the utility of data degrades exponentially with time.4 Applications such as real-time fraud detection algorithms, algorithmic trading observability platforms, programmatic ad-tech bidding engines, and high-concurrency customer-facing product dashboards mandate query latencies in the sub-second range over datasets comprising billions or trillions of rows.1 Furthermore, the advent of AI architectures, specifically Retrieval-Augmented Generation (RAG) frameworks, requires operational contexts, feature stores, and vector embeddings to be refreshed in milliseconds to prevent context drift and training-serving skew.3
-These stringent performance requirements have catalyzed the rapid evolution and widespread adoption of specialized Real-Time Online Analytical Processing (OLAP) databases.4 A real-time OLAP system is expressly engineered to ingest, store, and query data as it is generated, closing the operational gap by supporting high-frequency writes, fast analytical reads, and interactive exploration on constantly mutating datasets.4 They bridge the critical divide between high-throughput streaming ingestion engines—most notably Apache Kafka and Apache Flink—and the complex, multi-dimensional analytical queries required by end-users and downstream applications.6
-As the market has matured toward the year 2026, four open-source platforms have emerged as the vanguard of the real-time OLAP ecosystem: ClickHouse, StarRocks, Apache Druid, and Apache Pinot.1 While all four are broadly categorized as distributed, columnar analytical databases capable of sub-second query responses, their underlying architectures, execution engines, data mutability capabilities, indexing philosophies, and operational complexities differ drastically.9 This report provides an exhaustive, multi-dimensional analysis of these four systems, evaluating their systemic mechanics to determine their optimal deployment contexts within modern data infrastructures.
-2. Foundational Architectures and Distributed Topologies
-The fundamental architecture of a distributed database defines its scalability limits, fault tolerance mechanisms, and baseline query execution characteristics. The divergence in design philosophy among ClickHouse, StarRocks, Apache Druid, and Apache Pinot reveals the specific enterprise engineering workloads each system was originally constructed to resolve.
-2.1 ClickHouse: Vectorized Brute Force and Shared-Nothing Simplicity
-Originally developed at Yandex to power Yandex Metrica—a massive web analytics platform responsible for processing tens of billions of events daily across a multi-petabyte deployment—ClickHouse relies on a strictly shared-nothing, columnar architecture written entirely in C++.5 ClickHouse eschews complex decoupled architectural patterns in favor of a relatively monolithic node design, where each node in the cluster stores data locally on its attached disks and executes queries directly against that locally resident data.12
-The defining characteristic of the ClickHouse architecture is its relentless optimization for hardware utilization at the lowest possible level of the compute stack. It leverages vectorized query execution, a processing paradigm where, instead of iterating through data row-by-row via traditional Volcano-style iterators, the engine processes contiguous arrays of columnar data in blocks.5 This design allows the software to fully utilize Single Instruction, Multiple Data (SIMD) CPU instructions, executing a single operational command across multiple data points simultaneously.5 Consequently, ClickHouse can scan, filter, and aggregate billions of rows per second per server with astonishing computational efficiency.5
-Data within ClickHouse is managed by the proprietary MergeTree family of storage engines, which aggressively compresses columnar data and asynchronously merges data parts in the background to maintain high ingestion throughput without implementing locking mechanisms that would block analytical read queries.5 While traditionally deployed as a shared-nothing cluster requiring Apache ZooKeeper (or its lightweight C++ alternative, ClickHouse Keeper) for distributed replication and metadata coordination, recent commercial iterations have introduced ClickHouse Cloud, which successfully implements a decoupled compute-storage separation model.12
-2.2 StarRocks: Massively Parallel Processing (MPP) and Decoupled Flexibility
-StarRocks, initially founded in 2020 by core engineers from the Apache Doris project but subsequently rewritten to the extent that approximately 90% of the current codebase is entirely new, is designed as a next-generation Massively Parallel Processing (MPP) analytical database.16 It is distinguished by a cleanly decoupled architectural model that severely reduces operational overhead by consisting of merely two primary daemon types: Frontend (FE) nodes and Backend (BE) nodes.13
-The Frontend nodes act as the intelligent brain of the StarRocks cluster. They are responsible for metadata management (storing metadata entirely in-memory utilizing Berkeley DB Java Edition for replication), client connection handling, parsing SQL queries, and generating distributed execution plans.18 The Backend nodes handle the physical persistence of data and the execution of the query fragments distributed to them by the FE.13
-Crucially, StarRocks uniquely supports two distinct architectural modes. In the shared-nothing mode, BE nodes utilize local NVMe solid-state drives to achieve absolute maximum I/O performance.13 Alternatively, in the shared-data mode, StarRocks functions as a true cloud-native lakehouse architecture, where the storage layer is completely decoupled into S3-compatible object storage (such as AWS S3, Google Cloud Storage, or MinIO), and Compute Nodes (CNs) are deployed dynamically to process the remote data.13 This dual-architecture capability allows StarRocks to scale computation and storage independently based on the specific elasticity requirements of the enterprise, significantly mitigating the rigid provisioning constraints of earlier database generations.9
-2.3 Apache Druid: Highly Decoupled but Operationally Complex
-Developed in 2011 specifically for programmatic advertising analytics at Metamarkets (later commercialized by Imply), Apache Druid was constructed from the ground up as a distributed, time-partitioned, segment-based data store.9 Druid’s architectural philosophy strictly separates ingestion tasks, persistent storage, and query processing, theoretically granting it immense operational elasticity and workload isolation.5
-However, this aggressive separation of concerns introduces severe operational complexity and a massive infrastructural footprint. A production-grade Druid cluster requires the deployment, tuning, and orchestration of six distinct node types.10 The cluster relies on Coordinator nodes to manage data availability and segment distribution; Overlord nodes to govern streaming and batch ingestion tasks; Broker nodes to handle query routing and partial result merging; Historical nodes to serve immutable, memory-mapped data segments from deep storage; MiddleManager nodes to handle real-time streaming ingestion and serve volatile data before it is persisted; and Router nodes to act as unified API gateways.10
-Within this architecture, data is ingested, highly compressed into bitmap-indexed structures called segments, and then sealed immutably. These sealed segments are pushed to deep storage (such as Amazon S3 or HDFS) and subsequently pulled down onto the local disks of Historical nodes to be served to the Brokers.10 While this model ensures robust fault tolerance and strict isolation of read and write workloads, the sheer volume of moving parts renders cluster tuning, segment size balancing, compaction strategy optimization, and performance debugging highly resource-intensive for data engineering teams.10
-2.4 Apache Pinot: Optimized for Scatter-Gather Serving
-Apache Pinot was engineered internally at LinkedIn explicitly to power massive-scale, user-facing analytics—such as the ubiquitous "Who viewed your profile" feature—which requires ultra-low latency responses (frequently under 100 milliseconds) under extreme concurrency scenarios involving millions of active daily users.16
-Pinot's architecture shares distinct similarities with Druid regarding its highly distributed complexity. A standard Pinot deployment comprises Controllers, Brokers, Servers, and Minions, all heavily dependent on Apache Helix and Apache ZooKeeper for cluster state management and routing.8 Pinot utilizes a classic scatter-gather distributed execution model: Brokers receive analytical queries, scatter the query fragments across multiple Server nodes hosting the required data segments, and subsequently gather the partial results for final aggregation before returning the payload to the client.15
-Unlike ClickHouse, which relies primarily on hardware-level brute-force scanning, Pinot’s architecture relies entirely on an elaborate ecosystem of intelligent pre-computations and multi-layered indexes to physically minimize the volume of data processed at query time.20 This architectural philosophy explicitly optimizes for highly predictable query latency at extreme concurrency, but does so at the direct expense of ad-hoc query flexibility and relational schema complexities.20
-3. Storage Mechanisms, Memory Models, and Data Compression
-The physical storage layout and the mechanisms by which a database persists data to disk fundamentally dictate its compression ratios, read efficiency, and overall storage footprint. Furthermore, the storage model directly governs how the system handles mutable data, a critical consideration in modern data pipelines driven by continuous updates.
-3.1 The MergeTree Engine Paradigm in ClickHouse
-ClickHouse stores data using its proprietary MergeTree family of table engines, which represent the core of its storage philosophy. Data inserted into a MergeTree table is written to disk in highly compressed parts, sorted according to a defined primary key.5 As data accumulation triggers system thresholds, ClickHouse initiates background threads to asynchronously merge these smaller parts into larger, more heavily compressed segments.5
-Because ClickHouse utilizes a pure columnar orientation, identical data types are stored contiguously on disk.5 This contiguous alignment enables ClickHouse to apply aggressive, algorithmically advanced compression techniques (such as LZ4 or Zstandard), frequently reducing raw storage requirements by a factor of 10x or more.5 The secondary effect of this extreme compression is drastically reduced Disk I/O; because the data footprint is minimized, the CPU can read vast datasets from the disk into cache with minimal latency, translating directly into faster analytical queries and drastically lower cloud storage costs.5
-3.2 Segment Immutability in Druid and Pinot
-Both Apache Druid and Apache Pinot rely on a segment-based storage architecture optimized heavily for immutable, append-only time-series data.15 In Druid, streaming data is initially held in memory and local disk by MiddleManager nodes. Once a specific time threshold or row count is breached, this data is rolled up, heavily indexed using bitmaps, and sealed into an immutable segment.10
-Because the segments are strictly immutable, neither Druid nor Pinot natively supports granular, row-level data modifications on disk.16 The immutability guarantees high read concurrency without the need for complex locking mechanisms, but it fundamentally restricts the flexibility of the storage layer when interacting with dynamic business data.16
-3.3 Advanced Table Types in StarRocks
-StarRocks differentiates itself from the other systems by offering a sophisticated array of storage engine models tailored to specific data processing semantics, specifically providing four distinct table types: Duplicate Key, Aggregate, Unique Key, and Primary Key tables.24
-The Duplicate Key table is the default structure, appending data without constraints, functioning similarly to ClickHouse's standard MergeTree.25 The Aggregate table is engineered to store pre-aggregated metrics, reducing the computational burden of scanning vast datasets by performing calculations at ingestion time.25 However, it is the Unique Key and Primary Key tables that represent StarRocks' most significant architectural advantage in the storage layer.24
-The Primary Key table enforces strict UNIQUE and NOT NULL constraints on designated key columns.25 It is specifically engineered to handle high-frequency update and delete scenarios, overcoming the traditional limitations of columnar storage formats.25
-4. Navigating Data Mutability: Upserts and Schema Evolution
-The capacity to seamlessly handle mutable data—specifically continuous real-time updates (upserts), partial row deletions, and online schema evolutions—is a defining requirement for modern operational pipelines. Traditional data warehouses execute batch updates during low-traffic windows, but real-time databases must process granular row-level changes streaming continuously from Change Data Capture (CDC) tools like Debezium or strictly ordered Kafka topics.5
-4.1 StarRocks: Native Real-Time Mutability
-StarRocks exhibits vastly superior handling of mutable data through its Primary Key table implementation. When a data mutation (an INSERT, UPDATE, or DELETE) is streamed into StarRocks, the underlying LoadJob initiates a batch processing sequence. Crucially, StarRocks loads the primary key indexes of the corresponding tablets directly into memory.28
-Instead of merely appending multiple versions of a row to the disk and forcing the query engine to resolve the correct state asynchronously during a background read, StarRocks immediately evaluates the memory-resident primary keys.28 If a unique constraint violation occurs—meaning the primary key of the new data matches an existing row—StarRocks immediately marks the historical duplicate records in the data files as deleted during the write operation.26
-The downstream impact of this architectural choice on query performance is profound. During a read operation, because historical records have already been definitively marked as deleted, the query engine only reads the latest, authoritative data row.28 The system completely bypasses the need to read multiple versions of data files online to deduplicate data, guaranteeing uncompromising, predictable query performance even on highly volatile, constantly updating datasets.28 This makes StarRocks the optimal analytical counterpart for syncing live operational databases like PostgreSQL or MySQL.29 Furthermore, StarRocks natively supports online schema changes without halting ingestion pipelines.13
-4.2 ClickHouse: Asynchronous Mutations and Eventual Consistency
-ClickHouse was originally envisioned and designed strictly for immutable telemetry, logs, and clickstream data.16 To accommodate the growing industry demand for data updates, it provides specialized engines like the ReplacingMergeTree and the ALTER TABLE... UPDATE/DELETE mutation commands.5
-However, ClickHouse processes these updates entirely asynchronously.5 When a row is modified via an upsert mechanism, ClickHouse simply writes the new version of the row to a new, physically distinct data part on the disk.5 The obsolete historical rows are only purged much later when the background merge processes eventually select those specific parts for compaction.5
-Consequently, at query time, multiple versions of the same row often exist simultaneously.29 To ensure data accuracy, the query engine is forced to perform computationally expensive deduplication on the fly, a process often triggered manually by users invoking the FINAL keyword in their SQL statements.29 This asynchronous mutation logic causes degraded and highly unpredictable query latency when the database is subjected to frequent data ingestions or CDC streams.29 While recent version upgrades have introduced lightweight deletes and patch parts to mitigate this overhead, ClickHouse remains fundamentally optimized for append-heavy workloads rather than high-frequency transactional row updates.5
-Despite its mutation limitations, ClickHouse excels in schema evolution. It supports instant ALTER TABLE commands for adding, removing, or modifying columns without requiring the rewriting of underlying data, making structural alterations remarkably frictionless.23
-4.3 Apache Druid and Apache Pinot: The Immutability Penalty
-Both Druid and Pinot suffer from severe operational penalties when interacting with mutable data.16 Because their core architecture relies on immutable segments, any change to historical data—whether required to fix a pipeline error, apply a retroactive privacy deletion, or update a changing dimension—mandates a complete reingestion and reindexing of the affected segments.16
-Druid does not support real-time row-level upserts natively; engineers must rely on cumbersome background batch processes (often utilizing external compute clusters like Apache Spark) to rewrite and replace segments, imposing a high operational penalty for CDC workloads.16 Schema evolution in Druid is similarly burdensome, as adding a column to historical data requires complete segment reconstruction.23
-Pinot shares this append-only segment philosophy, though it has developed specialized, complex Upsert capabilities specifically tailored for real-time Kafka tables.30 However, Pinot’s approach to schema evolution introduces substantial operational friction. When adding a new column to an existing schema, particularly one with a default value, administrators are often forced to execute a rolling restart of the entire Pinot server cluster.31 This rolling restart is necessary to "reload" the segments into memory so that the default values are properly reflected in the query results.31 Because Pinot is explicitly deployed to maintain extremely tight SLA serving guarantees for user-facing applications, requiring cluster restarts to propagate schema changes introduces unacceptable risk and orchestration overhead.32
-5. Query Execution Engines: Vectorization, Optimizers, and Joins
-The ability to perform complex relational joins efficiently is one of the most critical differentiators among these four databases. In modern data warehousing, data is heavily normalized into star or snowflake schemas to reduce redundancy and ensure data integrity.27 If an analytical database cannot perform rapid distributed joins, engineers are forced into an anti-pattern known as upstream denormalization, which drastically inflates storage costs, complicates ETL pipelines, and destroys analytical flexibility.29
-5.1 StarRocks: MPP Join Execution and the Cost-Based Optimizer
-StarRocks dominates the landscape of complex analytical joins and normalized data models. Architected fundamentally as an MPP database, it features a highly advanced Cost-Based Optimizer (CBO) built upon the academic Cascades/ORCA optimization framework.30
-When a complex SQL query involving multiple tables is submitted, the CBO analyzes deep table statistics, data distribution patterns, cardinality, and index availability to dynamically generate the execution plan with the lowest estimated CPU, memory, and network I/O costs.33 Because the optimizer understands the precise distribution of the data, it dictates the most efficient join ordering algorithms.34
-Crucially, StarRocks natively supports memory-efficient distributed join algorithms that its competitors either lack entirely or execute poorly.15 It supports inner, outer, semi, anti, and cross joins, distributing the execution across the backend cluster using sophisticated network routing strategies.33 For instance, StarRocks leverages Colocate Joins, a powerful technique where dimension and fact tables that share the same distribution key are joined entirely locally on individual backend nodes, requiring absolutely zero network data shuffle.33 This effectively delivers local hash-join performance within a massive distributed cluster.33
-When colocation is impossible, StarRocks employs Broadcast Joins (replicating small dimension tables across the network to all executing nodes) and heavy Shuffle Joins (redistributing massive datasets across the network on the fly based on join keys).15 Consequently, StarRocks natively supports snowflake and star schemas without compromise, freeing data engineering teams from the immense burden of building massive, pre-joined flat tables in upstream streaming frameworks.27
-5.2 ClickHouse: Rule-Based Planning and the Denormalization Tax
-While ClickHouse is virtually peerless in single-table query speed and raw aggregation throughput, it has historically struggled with complex, multi-table distributed joins.16 The root cause of this limitation is its reliance on a rule-based query planner (RBO) rather than a sophisticated CBO.34
-An RBO executes queries based on static, predefined heuristics (e.g., always pushing down predicates or executing joins in the exact lexical order written by the user).34 When confronted with complex multi-table queries involving varied cardinalities, ClickHouse's rule-based planner is blind to the actual data characteristics, frequently resulting in catastrophic join ordering, inefficient data movement between nodes, and catastrophic out-of-memory errors.34
-To circumvent this fundamental architectural limitation, ClickHouse users are traditionally forced to heavily denormalize their data.29 Fact and dimension tables must be pre-joined upstream (often requiring extensive, stateful Apache Flink deployments) into incredibly wide, flat tables before being ingested into ClickHouse.27 This design choice imposes a heavy "denormalization tax": dimension attributes are needlessly duplicated across billions of fact rows, inflating storage requirements dramatically, and freezing analytical dimensions in place.33 If a stakeholder requires data to be sliced by a new dimension that was not explicitly included in the denormalized flat table, the entire upstream Flink pipeline must be rebuilt and the historical data re-processed.33 While recent iterations of ClickHouse have attempted to improve join capabilities with Parallel Hash and Grace Hash implementations, its query planner still lacks the deep optimizer maturity of StarRocks for enterprise data warehousing.15
-5.3 Apache Druid and Pinot: The Scatter-Gather Bottleneck
-Both Apache Druid and Apache Pinot were designed primarily for analyzing flat, append-only event streams and offer severely limited, rudimentary support for true relational joins.15 In both systems, join capabilities are mostly restricted to simple lookup joins or broadcast joins, where highly restricted, small dimension tables must be replicated across the entire cluster to be joined against a primary fact table.15
-Pinot notably operates without a Cost-Based Optimizer.16 As query complexity grows beyond simple single-table aggregations into multi-table relationships, Pinot rapidly struggles to maintain its low-latency guarantees, forcing engineers to manually rewrite queries to avoid joins entirely.16 Similarly, Druid's rigidly isolated segment-based architecture makes distributed shuffle joins across massive fact tables practically impossible without triggering severe network and memory bottlenecks.16 For enterprise workloads requiring flexible, ad-hoc exploration across heavily normalized reporting schemas, Druid and Pinot are structurally unsuitable.30
-6. Advanced Indexing Strategies and Data Retrieval Mechanics
-The footprint of a database on disk and its data retrieval mechanics are dictated by the indexing structures it employs. This operational area highlights the fundamental divergence between "compute-heavy" systems (ClickHouse) and "storage/index-heavy" systems (Pinot/Druid).
-6.1 ClickHouse: Sparse Indexing and Vectorized Hardware Dominance
-Unlike traditional OLTP databases that build dense B-Tree indexes pointing to individual rows, ClickHouse deliberately minimizes its reliance on secondary indexes.19 ClickHouse utilizes a sparse primary index that stores a single index entry for an entire block of data (typically configured to 8,192 rows) rather than every single row.19
-When an analytical query is executed, ClickHouse uses this sparse index to rapidly locate the rough vicinity of the target data on disk.20 From there, it abandons index lookups and relies entirely on sheer brute-force hardware speed—leveraging its SIMD vectorized execution engine—to scan and filter the remaining millions of rows in primary memory within milliseconds.5 This compute-heavy, index-light approach is the primary reason ClickHouse achieves phenomenal data compression, as it avoids storing massive index files alongside the raw data.20
-6.2 Apache Pinot: The Indexing Behemoth and the Star-Tree
-In stark contrast, Apache Pinot achieves its sub-second p99 latency guarantees through an exhaustive, highly engineered suite of indexing techniques, sacrificing storage efficiency for absolute read latency predictability.20 By default, Pinot employs dictionary-encoded forward indexes, but extends this functionality massively by supporting inverted indexes, sorted indexes, range indexes, bloom filters, JSON indexes, geospatial indexes, and native text indexes.21
-However, Pinot’s most unique architectural achievement is the proprietary Star-Tree Index.32 In real-time OLAP systems, dynamically computing massive aggregations across billions of rows inevitably encounters a latency wall, regardless of compute power. The traditional solution is to pre-aggregate all combinations of dimensions (creating a traditional OLAP cube), but this results in a combinatorial explosion of storage space. The Star-Tree index elegantly solves this mathematical dilemma by intelligently pre-aggregating metrics only up to a specifically configurable threshold of combinations, dynamically traversing a tree structure to balance sub-second query latency against storage bloat.32 This structure makes Pinot unparalleled for fixed-pattern, high-concurrency aggregations, but renders it highly inefficient and brittle for unpredictable, ad-hoc queries that bypass the Star-Tree entirely.32
-6.3 Apache Druid: Bitmap Supremacy
-Druid utilizes a highly optimized column format consisting of three interconnected components: a dictionary (mapping string values to integer IDs to save space), a list of the dictionary IDs representing the column data, and exhaustive inverted bitmap indexes.7
-The bitmap index allows Druid to perform ultra-fast filtering using complex boolean logic operations (AND, OR, NOT) directly on the compressed bitmaps before physically fetching any underlying data rows. This algorithmic approach makes Druid exceptionally fast for high-cardinality time-series filtering and multi-dimensional drill-downs commonly found in ad-tech dashboards and network monitoring tools.7 However, the generation of these bitmaps during segment creation is highly CPU-intensive, which contributes directly to Druid’s notoriously slow data ingestion times compared to ClickHouse or StarRocks.20
-7. Empirical Benchmarks: Hardware Efficiency and Throughput
-Empirical performance evaluation across standardized workloads reveals stark contrasts in ingestion throughput, query latency, and cluster resource utilization. The industry-standard ClickBench suite—executed under stringent controls on identical AWS c6a.4xlarge hardware over a 100 GB Hits dataset—provides highly objective comparative metrics among these analytical engines.20
-7.1 Ingestion Velocity and Storage Efficiency
-Data ingestion speed fundamentally determines how rapidly fresh streaming data becomes available for analytics, directly impacting the operational utility of the platform.5
-Performance Metric (ClickBench 100 GB Dataset)
-ClickHouse
-Apache Druid
-Apache Pinot
-Data Load Time
-269 seconds (Fastest)
-19,620 seconds (~5.5 hours)
-Failed to reliably load full set
-Loaded Storage Size on Disk
-14.26 GiB (Highest Compression)
-42.09 GiB (Approx. 3x larger)
-N/A
+A comparison of ClickHouse, StarRocks, Apache Druid, and Apache Pinot — the four engines defining real-time analytics in 2026.
 
-As demonstrated, ClickHouse dominates the raw data ingestion metrics, capable of loading the entire 100 GB dataset in under five minutes.20 Furthermore, its aggressive LZ4/Zstandard compression algorithms yielded a final loaded disk footprint of only 14.26 GiB, setting the absolute floor for lower cloud storage costs and reduced I/O scan times.20
-Conversely, Apache Druid exhibited the heaviest and slowest ingestion profile by a massive margin, requiring nearly five and a half hours to process the identical dataset.20 Furthermore, the resulting data footprint was over 42 GiB—roughly three times larger than ClickHouse—reflecting the immense computational cost of Druid's segment-building, dictionary encoding, and exhaustive bitmap indexing model.20 Apache Pinot displayed significant instability in this general-purpose benchmark, reportedly failing to reliably load the full dataset, reflecting its highly specialized tuning requirements that resist generalized benchmark deployments.20
-7.2 Analytical Query Execution Latency
-Standardized analytical benchmarks highlight the specific algorithmic strengths of ClickHouse and StarRocks over the older segment-based systems.
-Benchmark Suite Focus
-Superior Engine
-Secondary Engine
-Underperforming Engines
-ClickBench (Flat Tables, Aggregations)
-ClickHouse (Fastest on 43 queries)
-StarRocks (Close margin)
-Druid / Pinot (Slowest, multiple query failures)
-Star Schema Benchmark (SSB) (Dimensional Modeling, Joins)
-StarRocks (Outperforms CH by 1.87x)
-ClickHouse
-N/A
-TPC-H (Complex Multi-Table Joins, Varied Cardinalities)
-StarRocks (Outperforms CH by 3-5x)
-ClickHouse
-N/A
+## Why Real-Time OLAP Matters Now
 
-ClickHouse executed the majority of the ClickBench queries faster than the others, excelling heavily in deep aggregations and broad, brute-force table scans.20 However, when dimensional modeling is introduced via the Star Schema Benchmark (SSB), StarRocks outpaces ClickHouse by 1.87x precisely due to its advanced CBO and colocate join optimization.34 On the rigorous TPC-H suite, which involves highly complex, multi-table joins of varied cardinalities, StarRocks dominated, outperforming ClickHouse by an impressive 3-5x margin.34
-Druid proved to be 3-8x slower than ClickHouse on complex analytical workloads and up to 40x slower than StarRocks in certain edge cases, failing to complete several ClickBench queries entirely (e.g., Q6, Q18, Q21) due to memory exhaustion and lack of join support.5 While Pinot struggles in generalized benchmarks, it shines exclusively in ultra-high concurrency point-lookups (e.g., Q3, Q17, Q19 in ClickBench) where it delivers single-digit millisecond latency by leveraging its Star-Tree index.20
-8. Streaming Ingestion and Data Lake Federation
-The long-term architectural viability of a database is heavily correlated with its ability to integrate seamlessly with real-time streaming frameworks (Apache Kafka and Apache Flink) and its capacity to natively query open table formats residing in cloud data lakes.
-8.1 The Kafka and Flink Streaming Ecosystem
-Real-time OLAP databases rely heavily on stream processors to maintain sub-second ingestion-to-query latency.6 Stream processors like Apache Flink have specialized time-handling mechanisms—such as event-time processing and watermarking for out-of-order data—that OLAP databases generally lack natively.3 ClickHouse and Pinot excel when coupled with Kafka, allowing users to interactively explore and filter datasets across unpredictable dimensions as soon as the data hits the ingestion buffer.3 While Flink is often required upstream of ClickHouse to handle the complex stateful transformations necessary to denormalize data into flat tables 27, StarRocks’ native join capabilities frequently eliminate the need for heavy Flink transformations entirely, simplifying the ingestion pipeline.27
-8.2 Data Lakehouse Federation and Open Table Formats
-A critical trend in modern enterprise data architectures is the decoupling of proprietary storage in favor of querying open table formats (Apache Iceberg, Apache Hudi, and Delta Lake) directly on cheap object storage (S3/GCS).16
-StarRocks is unequivocally the superior engine in this domain.16 It acts as a powerful query federation engine, capable of seamlessly querying Iceberg, Hudi, and Delta formats directly on the cloud storage layer without requiring data ingestion.16 By executing its advanced Cost-Based Optimizer against external Hive metastores or internal catalogs, StarRocks provides high-performance data lake analytics, achieving speeds almost comparable to local SSD queries while utilizing storage that costs 5% of the price of local disks.16
-ClickHouse offers integration with data lakes via external tables, but its capabilities regarding deep query federation are substantially less mature compared to StarRocks, often functioning optimally only when the data is ultimately ingested into native MergeTree tables.16 Druid and Pinot both struggle severely with data lake federation; neither can dynamically execute performant ad-hoc queries directly against open table formats, requiring separate, complex background processes to load batch data from the data lake into their proprietary offline segments.16
-9. Open-Source Ecosystems, Governance, and Community Velocity
-Evaluating the health of an open-source project is paramount for enterprise adoption, as community velocity dictates the speed of bug resolutions, feature enhancements, and ecosystem connectors. GitHub metrics (evaluated as of 2026) provide an objective proxy for community health and developer mindshare.36
-Open Source Project
-Primary Language
-GitHub Stars (2026)
-Governance Model
-Ecosystem Position
-ClickHouse
-C++
-46,700+
-Independent (ClickHouse Inc.)
-Undisputed market leader, massive contributor velocity
-StarRocks
-Java / C++
-11,500+
-The Linux Foundation
-Explosive growth, 500+ active core contributors
-Apache Druid
-Java
-12,700+
-Apache Software Foundation
-Mature, stable, but experiencing slowing adoption
-Apache Pinot
-Java
-6,100+
-Apache Software Foundation
-Niche, highly specialized elite engineering community
+The old split was clean: OLTP for operations, batch warehouses for BI. Data freshness measured in hours was fine, because the workloads were retrospective.
 
-ClickHouse is the undisputed leader in community momentum and broad market adoption.11 Originating from Yandex, it boasts over 46,700 GitHub stars and massive weekly commit volumes, averaging over 1,300 commits per week.11 Supported by a $400M Series D valuation, ClickHouse powers multi-petabyte deployments at global enterprises such as Cloudflare, eBay, and Lyft, many of whom migrated away from Apache Druid to reduce infrastructure footprints by up to 90%.11
-StarRocks is experiencing explosive community growth under the neutral governance of the Linux Foundation.40 Maintaining over 11,500 GitHub stars and featuring an incredibly active contributor base of over 500 developers, it is being heavily adopted by enterprises migrating away from ClickHouse due to the latter's severe limitations with relational joins and data mutability.33
-Apache Druid remains a mature, highly stable project with approximately 12,700 GitHub stars.11 While it remains widely deployed in legacy ad-tech systems, its momentum has visibly slowed; organizations are increasingly balking at its severe operational complexity, segment tuning requirements, and high hardware costs, prompting large-scale migrations to ClickHouse and StarRocks.10 Apache Pinot maintains a niche but highly dedicated community with roughly 6,100 GitHub stars.43 Backed heavily by the commercial vendor StarTree, its adoption remains primarily restricted to elite engineering organizations (like LinkedIn, Uber, and Stripe) that possess the resources to manage its complexity in exchange for its unique user-facing concurrency capabilities.16
-10. Strategic Workload Alignment and Conclusion
-The landscape of real-time OLAP databases in 2026 presents data architects with highly specialized, powerful tools, each representing distinct engineering trade-offs. The notion of a singular "best" analytical database is a fundamental fallacy; optimal performance is intrinsically tied to the specific shape, mutability, and concurrency demands of the underlying workload.2
-ClickHouse has cemented its dominance as the engine of choice for sheer volumetric scale and hardware efficiency. It offers peerless data compression, the lowest storage footprint, and the fastest raw scan speeds available in the open-source market.2 It is the optimal choice for organizations dealing with massive volumes of append-only event data, such as system observability logs, CDN telemetry, and web analytics, provided the data structure can be effectively flattened into wide tables upstream.2
-Conversely, StarRocks has revolutionized the analytical space by successfully merging the sub-second query latency of modern OLAP with the operational flexibility, Cost-Based Optimization, and complex schema-join capabilities traditionally reserved for legacy data warehouses.33 For organizations burdened by the "denormalization tax," requiring continuous real-time CDC upserts without latency penalties, or seeking a federated engine for an Iceberg-based data lakehouse, StarRocks represents a profoundly compelling evolutionary step forward.16
-Meanwhile, the older, highly decoupled JVM-based architectures of Apache Druid and Apache Pinot continue to thrive in hyper-specialized niches. Druid maintains its historical foothold in high-cardinality, time-series slice-and-dice dashboarding, particularly within programmatic ad-tech, leveraging its optimized bitmap indexes.7 Pinot remains the uncontested architecture for serving extreme-concurrency, user-facing analytical products, trading SQL flexibility and join support for absolute mastery over point-lookup latency via its proprietary Star-Tree index.22
-Ultimately, enterprise data engineering teams must base their architectural decisions on a rigorous, objective assessment of their data mutability requirements, their dependency on normalized relational joins, their precise ingestion-to-query latency SLAs, and the maximum tolerable operational complexity their infrastructure teams can support.
-Works cited
-The Best Databases for Embedded Analytics in 2026 - Embeddable, accessed May 11, 2026, https://embeddable.com/blog/best-databases-for-analytics
-GitHub - samber/awesome-olap: A curated list of OLAP databases, data lake tools, columnar engines, and analytics frameworks for data engineers., accessed May 11, 2026, https://github.com/samber/awesome-olap
-Stream Processing vs. Real-Time OLAP: Flink, ClickHouse & Pinot Compared - Confluent, accessed May 11, 2026, https://www.confluent.io/blog/stream-processing-vs-real-time-olap-flink-clickhouse-and-pinot-compared/
-6 Best Database for Real-Time Analytics in 2026 (Compared & How to Choose), accessed May 11, 2026, https://www.velodb.io/blog/best-database-for-real-time-analytics
-Fastest database for analytics in 2026 compared with benchmarks - Tinybird, accessed May 11, 2026, https://www.tinybird.co/blog/fastest-database-for-analytics
-Realtime OLAP database with transactional-level query performance - Reddit, accessed May 11, 2026, https://www.reddit.com/r/dataengineering/comments/1kz3ya2/realtime_olap_database_with_transactionallevel/
-Pinot vs Druid vs ClickHouse: Compare Real-Time OLAP Database - Ksolves, accessed May 11, 2026, https://www.ksolves.com/blog/big-data/pinot-vs-druid-vs-clickhouse
-Data warehouses: A Brief Comparison | by Javad Hosseini - Medium, accessed May 11, 2026, https://jeyhosseini.medium.com/data-warehouses-a-brief-comparison-282398f22b18
-Scaling Beyond Postgres: How to Choose a Real-Time Analytical Database - Rill Data, accessed May 11, 2026, https://www.rilldata.com/blog/scaling-beyond-postgres-how-to-choose-a-real-time-analytical-database
-8 Apache Druid Alternatives: Beyond Complex OLAP Infrastructure - Tinybird, accessed May 11, 2026, https://www.tinybird.co/blog/apache-druid-alternatives
-The Modern Data Stack: Open-source edition - Datafold, accessed May 11, 2026, https://www.datafold.com/blog/the-modern-data-stack-open-source-edition/
-ClickHouse vs StarRocks Performance Comparison - OneUptime, accessed May 11, 2026, https://oneuptime.com/blog/post/2026-03-31-clickhouse-vs-starrocks-performance/view
-Architecture | StarRocks, accessed May 11, 2026, https://docs.starrocks.io/docs/introduction/Architecture/
-alberttwong/databasecomparison: Comparison of batch and real time OLAP databases, accessed May 11, 2026, https://github.com/alberttwong/databasecomparison
-Best real-time analytics database for star schema and fast joins (2026 guide) - ClickHouse, accessed May 11, 2026, https://clickhouse.com/resources/engineering/real-time-analytics-star-schema-joins
-Technical comparisons to other databases - StarRocks, accessed May 11, 2026, https://www.starrocks.io/blog/technical-comparisons-to-other-databases
-StarRocks: A Unified OLAP Database for Blazing-Fast Analytics, accessed May 11, 2026, https://www.starrocks.io/blog/introduction_to_starrocks
-Understanding StarRocks Architecture, accessed May 11, 2026, https://ideas.paasup.io/global/starrocken1/
-OLAP databases: what's new and what's best in 2026 - Tinybird, accessed May 11, 2026, https://www.tinybird.co/blog/best-database-for-olap
-Best columnar databases in 2026 | Engineering | ClickHouse ..., accessed May 11, 2026, https://clickhouse.com/resources/engineering/best-columnar-databases
-Inverted Index - Apache Pinot Docs, accessed May 11, 2026, https://docs.pinot.apache.org/build-with-pinot/indexing/inverted-index
-Why StarRocks Is Better Than Apache Pinot for Customer-Facing Analytics - Medium, accessed May 11, 2026, https://medium.com/@indomitability/why-starrocks-is-better-than-apache-pinot-for-customer-facing-analytics-170757a06a1c
-ClickHouse vs Druid for Real-Time Analytics - OneUptime, accessed May 11, 2026, https://oneuptime.com/blog/post/2026-03-31-clickhouse-vs-druid-real-time-analytics/view
-Overview of table types - StarRocks, accessed May 11, 2026, https://docs.starrocks.io/docs/table_design/table_types/
-StarRocks Table Types and Storage Models Explained - E-MapReduce - Alibaba Cloud, accessed May 11, 2026, https://www.alibabacloud.com/help/en/emr/emr-serverless-starrocks/table-overview/
-Capabilities of different table types - StarRocks, accessed May 11, 2026, https://docs.starrocks.io/docs/table_design/table_types/table_capabilities/
-ClickHouse vs. StarRocks: A Detailed Comparison, accessed May 11, 2026, https://www.starrocks.io/blog/clickhouse_or_starrocks
-Primary Key table - StarRocks, accessed May 11, 2026, https://docs.starrocks.io/docs/table_design/table_types/primary_key_table/
-ClickHouse Alternatives and Comparisons - CelerData, accessed May 11, 2026, https://celerdata.com/clickhouse-alternatives-comparisons
-StarRocks Alternatives: 10 Best Options Compared - Tinybird, accessed May 11, 2026, https://www.tinybird.co/blog/StarRocks-Alternatives
-Make Pinot schema evolution easier · Issue #4225 · apache/pinot - GitHub, accessed May 11, 2026, https://github.com/apache/incubator-pinot/issues/4225
-Star-Tree Index | Apache Pinot Docs, accessed May 11, 2026, https://docs.pinot.apache.org/build-with-pinot/indexing/star-tree-index
-Why StarRocks Is Better Than ClickHouse for Data Warehousing - Medium, accessed May 11, 2026, https://medium.com/@indomitability/why-starrocks-is-better-than-clickhouse-for-data-warehousing-c4c719df0af5
-ClickHouse® vs StarRocks: Which one is actually faster? - Tinybird, accessed May 11, 2026, https://www.tinybird.co/blog/clickhouse-vs-starrocks
-StarRocks vs ClickHouse: The Quest for Analytical Database Performance, accessed May 11, 2026, https://www.starrocks.io/blog/starrocks-vs-clickhouse-the-quest-for-analytical-database-performance
-Modern OLAP Systems - Simon Späti, accessed May 11, 2026, https://www.ssp.sh/brain/modern-olap-systems/
-Indexes | Apache Pinot 101 - YouTube, accessed May 11, 2026, https://www.youtube.com/watch?v=5E7REFmxNXM
-Indexing in Apache Pinot - Medium, accessed May 11, 2026, https://medium.com/@msoni6226/indexing-in-apache-pinot-3b379d1184a6
-Migrate from Imply to ClickHouse, accessed May 11, 2026, https://clickhouse.com/comparison/imply
-Analyze StarRocks/starrocks - OSSInsight, accessed May 11, 2026, https://ossinsight.io/analyze/StarRocks/starrocks
-GitHub - StarRocks/starrocks: The world's fastest open query engine for sub-second analytics both on and off the data lakehouse. With the flexibility to support nearly any scenario, StarRocks provides best-in-class performance for multi-dimensional analytics, real-time analytics, and ad-hoc queries. A Linux Foundation project., accessed May 11, 2026, https://github.com/starrocks/starrocks
-2025 Year in Review - StarRocks, accessed May 11, 2026, https://www.starrocks.io/blog/starrocks-2025-year-in-review
-Apache Pinot - A realtime distributed OLAP datastore - GitHub, accessed May 11, 2026, https://github.com/apache/pinot
-5 Best Real-Time Analytics Platforms in 2026, accessed May 11, 2026, https://www.velodb.io/blog/best-real-time-analytics-platforms
+That model has broken. User-facing analytics, fraud detection, ad bidding, and RAG-style AI applications all need sub-second queries over billions of rows, with data that's seconds old. Real-time OLAP databases close the gap between streaming ingestion (Kafka, Flink) and interactive analytical queries.
+
+Four open-source engines lead the space:
+
+- **ClickHouse** — vectorized scans, append-heavy workloads
+- **StarRocks** — MPP joins, mutability, lakehouse federation
+- **Apache Druid** — time-series segments, bitmap indexes
+- **Apache Pinot** — extreme-concurrency point lookups
+
+They're all columnar, distributed, and fast — but they diverge sharply on architecture, mutability, joins, and operational cost.
+
+## Architecture
+
+### ClickHouse: shared-nothing, vectorized C++
+
+Built at Yandex for web analytics, ClickHouse is a monolithic, shared-nothing columnar engine written in C++. Each node stores data locally and executes queries against it.
+
+The defining design choice is hardware-level optimization. Queries process columnar data in blocks, leveraging SIMD instructions to scan billions of rows per second per node. Data lives in the **MergeTree** family of engines: aggressive compression, async background merges, no read locks. Replication uses ZooKeeper or the lightweight ClickHouse Keeper. ClickHouse Cloud adds a decoupled compute-storage model.
+
+### StarRocks: MPP with decoupled storage
+
+StarRocks descends from Apache Doris but is ~90% rewritten. The architecture is unusually clean: two daemon types.
+
+- **Frontend (FE)** — metadata, SQL parsing, query planning, client connections
+- **Backend (BE)** — data storage and query execution
+
+It runs in two modes: **shared-nothing** (BEs with local NVMe for maximum I/O) or **shared-data** (S3-compatible object storage with stateless Compute Nodes for cloud-native elasticity). The dual model lets compute and storage scale independently.
+
+### Apache Druid: decoupled, complex
+
+Druid was built at Metamarkets for programmatic ad analytics. It separates ingestion, storage, and query — which sounds great until you count the moving parts. A production cluster requires **six node types**: Coordinator, Overlord, Broker, Historical, MiddleManager, Router. Plus deep storage (S3/HDFS) and ZooKeeper.
+
+Data is ingested into immutable, bitmap-indexed **segments**, pushed to deep storage, and pulled onto Historical nodes. Workload isolation is excellent. Operational burden is severe.
+
+### Apache Pinot: scatter-gather for user-facing analytics
+
+Pinot was built at LinkedIn to power "Who viewed your profile" — millions of users hitting analytical queries under 100ms. Architecture-wise it resembles Druid: Controllers, Brokers, Servers, Minions, with Helix and ZooKeeper coordinating cluster state.
+
+Where ClickHouse brute-forces scans, Pinot leans entirely on pre-computation and layered indexes. It's optimized for predictable latency at extreme concurrency, at the cost of ad-hoc flexibility.
+
+## Storage and Mutability
+
+### ClickHouse: append-first
+
+Data lands in compressed parts sorted by primary key. Background threads merge parts into larger segments. Columnar layout enables LZ4/Zstandard compression with 10x+ ratios — meaning less disk I/O and lower cloud storage costs.
+
+Mutations are an afterthought. `ALTER TABLE ... UPDATE/DELETE` and `ReplacingMergeTree` write new versions to new parts; old rows linger until background merges purge them. Queries often need `FINAL` to deduplicate on the fly, which tanks latency under heavy CDC. Recent lightweight deletes and patch parts help, but the engine is fundamentally append-optimized.
+
+Schema evolution, on the other hand, is excellent — `ALTER TABLE` is instant, no data rewrite required.
+
+### StarRocks: real mutability
+
+StarRocks offers four table types: Duplicate Key (append-only), Aggregate (pre-aggregation), Unique Key, and **Primary Key**. The Primary Key table is the differentiator.
+
+When a row is upserted, StarRocks loads the tablet's primary key index into memory, evaluates the unique constraint at write time, and marks superseded rows as deleted immediately. Reads see only the latest authoritative row — no deduplication pass, no `FINAL` keyword, predictable latency.
+
+This makes StarRocks the natural target for live CDC from PostgreSQL or MySQL. Online schema changes work without halting ingestion.
+
+### Druid and Pinot: the immutability penalty
+
+Both rely on immutable segments. Any update — fixing pipeline errors, GDPR deletes, dimension changes — requires reingesting and reindexing segments, often via external Spark jobs.
+
+Pinot has bolted on upsert support for real-time Kafka tables, but it's specialized and brittle. Schema evolution is rough: adding a column with a default value often requires a rolling restart of the server cluster to reload segments — a non-starter for the user-facing SLAs Pinot is supposed to serve.
+
+## Query Execution and Joins
+
+Joins are the cleanest dividing line between these engines.
+
+### StarRocks: real distributed joins
+
+StarRocks ships a mature **Cost-Based Optimizer** built on the Cascades/ORCA framework. It analyzes table statistics, cardinality, and distribution to pick join orders and algorithms.
+
+The killer feature is **Colocate Joins**: fact and dimension tables that share a distribution key get joined locally on each backend, with zero network shuffle. When colocation isn't possible, StarRocks falls back to Broadcast Joins (small dimensions) or Shuffle Joins (large fact tables). Star and snowflake schemas work without compromise.
+
+### ClickHouse: the denormalization tax
+
+ClickHouse uses a rule-based planner. Multi-table joins with varied cardinalities hit catastrophic plans, network thrash, and OOMs.
+
+The workaround: denormalize upstream. Engineers build wide flat tables via stateful Flink jobs before ingesting. This duplicates dimensions across billions of rows, inflates storage, and freezes the schema — if a stakeholder wants a new dimension, the whole Flink pipeline gets rebuilt. Parallel Hash and Grace Hash joins have improved things, but the optimizer is still well behind StarRocks.
+
+### Druid and Pinot: limited joins
+
+Both target flat event streams. Joins are restricted to broadcast/lookup against small dimensions. Pinot has no CBO. Distributed shuffle joins across large fact tables aren't viable in either. For normalized reporting schemas, both are structurally unsuitable.
+
+## Indexing
+
+| Engine | Strategy |
+|---|---|
+| ClickHouse | Sparse primary index (one entry per ~8,192 rows) + SIMD brute-force scan |
+| Pinot | Forward, inverted, sorted, range, bloom, JSON, geospatial, text, **Star-Tree** |
+| Druid | Dictionary + bitmap inverted indexes for fast boolean filtering |
+| StarRocks | Sorted keys, bloom filters, bitmap, n-gram bloom, ZoneMap |
+
+ClickHouse minimizes indexing — fewer index files, better compression, faster scans. Pinot maximizes it: its proprietary **Star-Tree** index pre-aggregates only up to a configurable threshold, balancing latency and storage bloat. Druid's bitmap indexes shine for high-cardinality time-series filtering but make ingestion notoriously slow.
+
+## Performance
+
+### Bulk Load and Storage
+
+ClickBench on 100 GB (c6a.4xlarge, identical hardware):
+
+| Metric | ClickHouse | StarRocks | Druid | Pinot |
+|---|---|---|---|---|
+| Load time | **269s** | ~400s | 19,620s (~5.5h) | Failed to fully load |
+| Disk footprint | **14.26 GiB** | ~18 GiB | 42.09 GiB | N/A |
+| Compression ratio | ~7x | ~5–6x | ~2.4x | ~3x |
+
+ClickHouse wins ingestion and compression decisively. Druid is 3x larger and roughly 70x slower to load due to segment building, dictionary encoding, and bitmap construction. Pinot's general-purpose benchmark instability reflects its specialized tuning requirements.
+
+### Streaming Ingestion Throughput
+
+Per-node sustained ingestion under typical Kafka pipelines:
+
+| Engine | Per-node throughput | Ingestion-to-query lag |
+|---|---|---|
+| ClickHouse | 500K–2M rows/sec (Buffer/Async inserts) | 1–10s |
+| StarRocks | 100K–1M rows/sec (Stream Load, Primary Key 50–200K) | 1–5s |
+| Druid | 10K–100K events/sec per ingestion task | 30s–2min (segment handoff) |
+| Pinot | 100K–500K events/sec per server | 1–10s (real-time tables) |
+
+Druid's segment handoff is the slowest path to query visibility; for sub-minute freshness, ClickHouse and StarRocks are the safer picks.
+
+### Query Latency by Workload
+
+Latency targets vary sharply by query shape. Approximate p50 / p99 on a properly sized cluster:
+
+| Workload | ClickHouse | StarRocks | Druid | Pinot |
+|---|---|---|---|---|
+| Single-table aggregation | 50ms / 500ms | 80ms / 600ms | 200ms / 2s | 100ms / 1s |
+| Star schema join (3–5 tables) | 1–5s / OOM risk | **150ms / 1s** | Not viable | Not viable |
+| Time-series filter + group-by | 100ms / 800ms | 150ms / 1s | **80ms / 500ms** | 50ms / 400ms |
+| Point lookup (indexed) | 200ms / 1s | 100ms / 500ms | 150ms / 800ms | **5ms / 50ms** |
+| Ad-hoc TPC-H query | 5s+ | **1s** | Fails | Fails |
+
+Standardized benchmark winners:
+
+| Benchmark | Winner | Runner-up |
+|---|---|---|
+| ClickBench (flat, aggregations) | ClickHouse | StarRocks (close) |
+| SSB (star schema, joins) | StarRocks (1.87x faster than CH) | ClickHouse |
+| TPC-H (complex joins) | StarRocks (3–5x faster than CH) | ClickHouse |
+
+### Concurrency and SLA Profiles
+
+Latency is meaningless without knowing how many concurrent queries each engine can hold to that latency. The four engines target very different SLAs:
+
+| Engine | Target QPS per cluster | p99 SLA | Typical use |
+|---|---|---|---|
+| ClickHouse | 100–1,000 | 100ms–2s | Internal BI, observability, ad-hoc exploration |
+| StarRocks | 1,000–10,000 | 100ms–500ms | Mixed workload: BI + customer-facing dashboards |
+| Druid | 100–1,000 | 200ms–1s | Operational dashboards, time-series slice-and-dice |
+| Pinot | **10,000–100,000+** | **10–100ms** | User-facing analytics at consumer scale |
+
+Pinot is the only engine designed from day one for tens of thousands of concurrent queries with tight tail latency — LinkedIn runs it at >250K QPS for "Who viewed your profile." ClickHouse and Druid degrade noticeably above ~1K concurrent users without aggressive caching layers. StarRocks sits comfortably in the middle and can serve customer-facing workloads if the query patterns aren't extreme.
+
+### What Breaks Each Engine
+
+- **ClickHouse**: heavy CDC (mutations trigger `FINAL` deduplication), complex joins (RBO picks bad plans → OOM), >1K concurrent users.
+- **StarRocks**: very high cardinality Primary Key tables (memory pressure on PK index), >10K QPS without careful tuning.
+- **Druid**: any join beyond broadcast, mutable data, ingestion freshness below ~30s.
+- **Pinot**: ad-hoc queries that bypass the Star-Tree, multi-table relationships, schema changes under live traffic.
+
+## Streaming and Lakehouse Federation
+
+Kafka integration is table stakes for all four. The interesting divergence is upstream complexity and data lake support.
+
+**StarRocks** is the strongest federation engine. It queries Iceberg, Hudi, and Delta directly on object storage via its CBO, hitting performance close to native SSD queries at ~5% of the storage cost. Native joins mean less Flink preprocessing.
+
+**ClickHouse** offers external table integrations, but data lake federation is shallow — performance generally requires ingesting into native MergeTree tables.
+
+**Druid and Pinot** can't perform ad-hoc queries against open table formats. Both need separate batch pipelines to load data into proprietary segments.
+
+## Ecosystem (2026)
+
+| Engine | Stars | Governance | Position |
+|---|---|---|---|
+| ClickHouse | 46,700+ | ClickHouse Inc. | Market leader, ~1,300 commits/week |
+| Apache Druid | 12,700+ | Apache | Mature, slowing adoption |
+| StarRocks | 11,500+ | Linux Foundation | Explosive growth, 500+ contributors |
+| Apache Pinot | 6,100+ | Apache (StarTree commercial) | Niche, elite engineering shops |
+
+ClickHouse owns the broad market — Cloudflare, eBay, and Lyft run it at petabyte scale, many having migrated off Druid for 90% infrastructure reduction. StarRocks is gaining fast at ClickHouse's expense, particularly in shops that need joins and mutability. Druid has visible momentum loss as teams tire of its operational footprint. Pinot stays niche, serving LinkedIn, Uber, and Stripe where its concurrency profile justifies the complexity.
+
+## Choosing an Engine
+
+There's no "best" — only fit. The decision turns on four questions:
+
+**Pick ClickHouse if:** your data is append-only event streams (logs, telemetry, web analytics), queries are mostly single-table aggregations, and you can flatten upstream. You'll get the smallest storage footprint and the fastest scans on the market.
+
+**Pick StarRocks if:** you need real upserts from CDC, run star/snowflake schemas with complex joins, or want to query an Iceberg lakehouse directly. It's the closest thing to a real-time data warehouse.
+
+**Pick Druid if:** you're doing high-cardinality time-series dashboarding (ad-tech, network monitoring) and can afford the operational overhead. Bitmap indexes still win for slice-and-dice.
+
+**Pick Pinot if:** you're serving user-facing analytics to millions of concurrent users with predictable query patterns, and the Star-Tree fits your aggregation shape. Accept the join limitations and operational complexity as the cost of admission.
+
+The biggest practical shift in 2026 is that StarRocks has eroded ClickHouse's "single best default" status. If your workload has any meaningful join or mutability requirement, StarRocks is now the safer bet — and ClickHouse should be reserved for the pure scan-heavy workloads where it's still untouchable.
