@@ -13,3 +13,6 @@ theme = 'paper'
   github  = "sssyyw"
   linkedin = 'yiweishi'
 
+[taxonomies]
+  tag = "tags"
+  category = "categories"
