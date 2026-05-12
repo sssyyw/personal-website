@@ -1,5 +1,5 @@
 +++
-date = '2026-05-11T22:52:48-04:00'
+date = '2026-05-05T22:52:48-04:00'
 draft = false
 title = 'Back-of-the-Envelope Numbers Every System Designer Should Know'
 +++
