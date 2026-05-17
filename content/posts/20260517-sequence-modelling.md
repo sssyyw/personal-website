@@ -1,7 +1,7 @@
 +++
 date = '2026-05-17T06:51:14-04:00'
 draft = false
-title = '20260517 Sequence Modelling'
+title = 'Sequence Modelling'
 +++
 
 # Sequence Modeling in Industrial Recommendation & Ads Systems
