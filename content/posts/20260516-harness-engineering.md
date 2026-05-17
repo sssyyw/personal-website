@@ -1,7 +1,7 @@
 +++
-date = '2026-05-17T07:12:48-04:00'
+date = '2026-05-16T07:12:48-04:00'
 draft = false
-title = 'What is Harness Engineering'
+title = 'What is Harness Engineering ?'
 +++
 
 Beginning in Q1 2026, OpenAI, Cursor, LangChain, and Anthropic all brought up the concept of harness engineering. What is it? OpenAI's harness engineering addresses the interaction dimension: how a human can steer large amounts of agent work with minimal intervention, corresponding to span of control and delegation in management theory. Cursor's self-driving codebases address the spatial dimension: how hundreds of agents running in parallel can avoid stepping on each other, corresponding to cross-team coordination. Anthropic's harness design for long-running apps addresses the temporal dimension: how a single agent running continuously for hours can avoid drifting off course, corresponding to milestone management in long-cycle projects.

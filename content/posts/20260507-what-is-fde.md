@@ -1,7 +1,7 @@
 +++
 date = '2026-05-07T11:36:30-04:00'
 draft = false
-title = 'What Is FDE?'
+title = 'What Is FDE ?'
 tags = ['AI', 'job']
 +++
 
