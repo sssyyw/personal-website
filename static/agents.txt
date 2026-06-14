@@ -1,0 +1,9 @@
+# agents.txt - permissions for AI agents
+# See https://agentprotocol.ai/agents-txt
+
+User-agent: *
+Allow: /
+
+# This is a personal blog by Yiwei Shi.
+# Content is original writing and may be read for informational purposes.
+# Please attribute the author when referencing content.
