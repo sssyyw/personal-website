@@ -1,0 +1,587 @@
++++
+date = '2026-06-14T09:50:10-04:00'
+draft = false
+title = 'Attention Economy'
++++
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Zero-Sum Attention Economy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=Archivo+Expanded:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,18,400;0,18,500;1,18,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EAEBEE;
+    --panel:#FCFCFD;
+    --ink:#14161B;
+    --ink-soft:#3B3F48;
+    --muted:#787D86;
+    --hair:#D7D9DE;
+    --grid:#E6E8EB;
+    --signal:#E8430F;     /* winners / highlight */
+    --blue:#2D5F8A;       /* recent / support */
+    --blue-mid:#7FA3C0;   /* mid era */
+    --blue-pale:#C3D2DF;  /* old era */
+    --teal:#1F7A5C;
+    --brick:#A8513E;      /* decline */
+    --gold:#B8862B;
+    --violet:#6A4A8C;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:"IBM Plex Mono",monospace;
+    -webkit-font-smoothing:antialiased;
+  }
+  .rpt{max-width:1000px;margin:0 auto;padding:0 24px 120px}
+
+  /* ---------- type roles ---------- */
+  .rpt .eyebrow{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--signal);
+    display:flex;align-items:center;gap:10px;margin:0 0 14px;
+  }
+  .rpt .eyebrow::before{content:"";width:26px;height:2px;background:var(--signal);display:inline-block}
+  .rpt h1,.rpt h2,.rpt h3{font-family:"Archivo Expanded","Archivo",sans-serif;margin:0;line-height:.98;letter-spacing:-.01em}
+  .rpt h2{font-size:clamp(28px,4.6vw,46px);font-weight:900;margin-bottom:10px}
+  .rpt h3{font-family:"Archivo",sans-serif;font-size:18px;font-weight:800;letter-spacing:-.005em}
+  .rpt .cap{font-family:"Newsreader",serif;font-size:15.5px;line-height:1.5;color:var(--ink-soft);max-width:62ch}
+  .rpt .src{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);letter-spacing:.04em;margin-top:14px}
+  .rpt .src b{color:var(--signal);font-weight:600}
+
+  /* ---------- hero ---------- */
+  .hero{padding:78px 0 30px;border-bottom:2px solid var(--ink)}
+  .hero .kicker{font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:26px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .hero h1{font-size:clamp(40px,9vw,96px);font-weight:900;letter-spacing:-.02em}
+  .hero h1 .em{color:var(--signal)}
+  .hero .lede{font-family:"Newsreader",serif;font-size:clamp(17px,2.3vw,22px);line-height:1.45;color:var(--ink-soft);max-width:54ch;margin:26px 0 0}
+
+  /* depletion meter (signature) */
+  .meter{margin:40px 0 4px}
+  .meter .mlabels{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;text-transform:uppercase}
+  .meter .track{position:relative;height:46px;background:repeating-linear-gradient(90deg,transparent 0,transparent 5.99%,var(--hair) 6%,var(--hair) 6.02%);border:1.5px solid var(--ink);border-radius:2px;overflow:hidden}
+  .meter .fill{position:absolute;inset:0 0 0 0;width:0;background:var(--ink);transition:width 1.4s cubic-bezier(.2,.7,.2,1)}
+  .meter.vis .fill{width:27.8%}
+  .meter .ftag{position:absolute;top:50%;transform:translateY(-50%);left:calc(27.8% + 12px);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap}
+  .meter .scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:6px}
+
+  /* ---------- stat band ---------- */
+  .band{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1.5px solid var(--ink);margin:64px 0}
+  .band .cell{padding:22px 20px;border-right:1.5px solid var(--ink)}
+  .band .cell:last-child{border-right:none}
+  .band .big{font-family:"Archivo Expanded","Archivo",sans-serif;font-weight:900;font-size:clamp(30px,5vw,46px);line-height:.9;letter-spacing:-.02em}
+  .band .big .u{font-size:.42em;font-weight:700;color:var(--muted);letter-spacing:0}
+  .band .lab{font-size:11px;letter-spacing:.06em;color:var(--ink-soft);margin-top:12px;line-height:1.4;text-transform:uppercase}
+  .band .cell.hi .big{color:var(--signal)}
+
+  /* ---------- sections ---------- */
+  section.blk{padding:78px 0 0}
+  .blk .head{margin-bottom:34px}
+  .panel{background:var(--panel);border:1.5px solid var(--ink);padding:30px 28px 26px}
+
+  /* trajectory chart rows */
+  .traj .row{display:grid;grid-template-columns:128px 1fr;align-items:center;border-bottom:1px solid var(--grid);padding:0}
+  .traj .row:last-child{border-bottom:none}
+  .traj .name{font-size:13px;font-weight:600;padding:0 14px 0 0;color:var(--ink)}
+  .traj .name .meta{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:2px}
+  .traj svg{width:100%;display:block}
+  .traj .axis{display:grid;grid-template-columns:128px 1fr;border-top:1.5px solid var(--ink);margin-top:0}
+  .traj .axis .ticks{position:relative;height:24px}
+  .traj .legend{display:flex;gap:22px;flex-wrap:wrap;font-size:11px;color:var(--ink-soft);margin-top:20px;align-items:center}
+  .traj .legend .k{display:inline-flex;align-items:center;gap:7px}
+  .traj .legend .dot{width:11px;height:11px;border-radius:50%}
+
+  /* slope chart */
+  .slope-wrap{display:grid;grid-template-columns:1fr;gap:0}
+  .slope svg{width:100%;height:auto;display:block}
+
+  /* hbar */
+  .hbar .row{display:grid;grid-template-columns:150px 1fr 66px;align-items:center;gap:14px;padding:9px 0}
+  .hbar .bn{font-size:13px;font-weight:600}
+  .hbar .track{height:22px;background:var(--grid);position:relative;overflow:hidden}
+  .hbar .fill{height:100%;width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+  .hbar.vis .fill{width:var(--w)}
+  .hbar .val{font-size:13px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+
+  /* split: donut + algo */
+  .split{display:grid;grid-template-columns:300px 1fr;gap:0}
+  .split .left{border-right:1.5px solid var(--ink);padding:8px 28px 8px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .split .left .donutlab{font-family:"Archivo Expanded","Archivo",sans-serif;font-weight:900;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-top:14px;line-height:1.3}
+  .split .right{padding:8px 0 8px 28px;display:flex;flex-direction:column;justify-content:center}
+  .split .right h3{margin-bottom:18px}
+
+  /* generational */
+  .gen{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;text-align:center}
+  .gen .g{padding:22px 16px;border-right:1px solid var(--grid)}
+  .gen .g:last-child{border-right:none}
+  .gen .col{display:flex;flex-direction:column-reverse;align-items:center;height:200px;justify-content:flex-start}
+  .gen .barfill{width:54px;background:var(--ink);height:0;transition:height 1.2s cubic-bezier(.2,.7,.2,1)}
+  .gen.vis .g1 .barfill{height:180px;background:var(--signal)}
+  .gen.vis .g2 .barfill{height:138px;background:var(--blue)}
+  .gen.vis .g3 .barfill{height:75px;background:var(--muted)}
+  .gen .ghrs{font-family:"Archivo Expanded","Archivo",sans-serif;font-weight:900;font-size:26px;margin-bottom:10px}
+  .gen .gname{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-top:14px}
+  .gen .gsub{font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.4}
+
+  /* quadrant */
+  .quad{position:relative;aspect-ratio:1/.74;border:1.5px solid var(--ink);background:
+     linear-gradient(var(--grid),var(--grid)) center/1.5px 100% no-repeat,
+     linear-gradient(var(--grid),var(--grid)) center/100% 1.5px no-repeat;}
+  .quad .axl{position:absolute;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .quad .axl.t{top:8px;left:50%;transform:translateX(-50%)}
+  .quad .axl.b{bottom:8px;left:50%;transform:translateX(-50%)}
+  .quad .axl.l{left:10px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left center}
+  .quad .axl.r{right:10px;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:right center}
+  .quad .node{position:absolute;transform:translate(-50%,-50%);text-align:center}
+  .quad .node .chip{font-size:11.5px;font-weight:700;background:var(--panel);border:1.5px solid var(--ink);padding:5px 9px;white-space:nowrap;line-height:1}
+  .quad .node.win .chip{background:var(--signal);color:#fff;border-color:var(--signal)}
+  .quad .node.fall .chip{border-color:var(--brick);color:var(--brick)}
+
+  /* gap */
+  .gap{display:grid;grid-template-columns:1fr;gap:18px}
+  .gap .gline{display:grid;grid-template-columns:130px 1fr 90px;align-items:center;gap:14px}
+  .gap .glab{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .gap .gtrack{height:34px;background:var(--grid);position:relative;overflow:hidden}
+  .gap .gfill{height:100%;width:0;transition:width 1.2s cubic-bezier(.2,.7,.2,1)}
+  .gap.vis .perceived .gfill{width:39.3%;background:var(--blue-mid)}
+  .gap.vis .actual .gfill{width:100%;background:var(--signal)}
+  .gap .gval{font-family:"Archivo Expanded","Archivo",sans-serif;font-weight:900;font-size:24px;text-align:right}
+
+  /* scoreboard */
+  .score{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--ink)}
+  .score .card{padding:24px 22px;border-right:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+  .score .card:nth-child(2n){border-right:none}
+  .score .card:nth-last-child(-n+2){border-bottom:none}
+  .score .tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:4px 8px;border-radius:2px;margin-bottom:14px}
+  .score .tag.w{background:var(--signal);color:#fff}
+  .score .tag.g{background:var(--teal);color:#fff}
+  .score .tag.e{background:var(--ink);color:#fff}
+  .score .tag.l{background:var(--brick);color:#fff}
+  .score .who{font-family:"Archivo Expanded","Archivo",sans-serif;font-weight:900;font-size:28px;line-height:.95;margin-bottom:10px}
+  .score .why{font-family:"Newsreader",serif;font-size:14.5px;line-height:1.5;color:var(--ink-soft)}
+  .score .metric{font-size:12px;font-weight:600;color:var(--ink);margin-top:12px;font-variant-numeric:tabular-nums}
+
+  /* footer */
+  .foot{margin-top:90px;border-top:1.5px solid var(--ink);padding-top:22px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  .corr{margin-top:14px;border-left:3px solid var(--signal);padding:10px 0 10px 14px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-soft);background:rgba(232,67,15,.05)}
+  .corr b{color:var(--signal)}
+
+  @media (max-width:760px){
+    .band{grid-template-columns:1fr 1fr}
+    .band .cell:nth-child(2){border-right:none}
+    .band .cell:nth-child(1),.band .cell:nth-child(2){border-bottom:1.5px solid var(--ink)}
+    .split{grid-template-columns:1fr}
+    .split .left{border-right:none;border-bottom:1.5px solid var(--ink);padding:0 0 26px}
+    .split .right{padding:26px 0 0}
+    .score{grid-template-columns:1fr}
+    .score .card{border-right:none}
+    .gen{grid-template-columns:1fr}
+    .gen .g{border-right:none;border-bottom:1px solid var(--grid)}
+    .hbar .row{grid-template-columns:96px 1fr 52px;gap:8px}
+    .traj .row,.traj .axis{grid-template-columns:92px 1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="rpt">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="kicker"><span>U.S. Media Consumption</span><span>2016 — 2026</span></div>
+    <h1>The Zero-Sum<br>Attention <span class="em">Economy</span></h1>
+    <p class="lede">A decade ago, platforms grew by capturing unspent leisure time. That slack is gone. Waking hours are now a fixed pie — every minute one platform wins, another loses.</p>
+
+    <div class="meter" id="meter">
+      <div class="mlabels"><span>Daily waking hours</span><span>Spent on screens</span></div>
+      <div class="track"><div class="fill"></div><div class="ftag">6 h 40 m / day</div></div>
+      <div class="scale"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div>
+    </div>
+  </header>
+
+  <!-- STAT BAND -->
+  <div class="band" id="band">
+    <div class="cell"><div class="big">6:40<span class="u"> h/day</span></div><div class="lab">Total screen time · plateaued since 2021</div></div>
+    <div class="cell"><div class="big">2:18<span class="u"> h/day</span></div><div class="lab">On social media · slight retraction</div></div>
+    <div class="cell"><div class="big">4.5<span class="u"> svcs</span></div><div class="lab">Streaming subs per household · $69/mo</div></div>
+    <div class="cell hi"><div class="big">2.5×</div><div class="lab">Subscription spend vs. what people think</div></div>
+  </div>
+
+  <!-- TRAJECTORY -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">Figure 01 — Reallocation</div>
+      <h2>Where the minutes moved</h2>
+      <p class="cap">Daily minutes per U.S. user, traced across three checkpoints. Short-form video and community feeds absorbed the time that legacy social networks bled.</p>
+    </div>
+    <div class="panel">
+      <div class="traj" id="traj"></div>
+      <div class="legend traj">
+        <span class="k"><span class="dot" style="background:var(--blue-pale)"></span>2016</span>
+        <span class="k"><span class="dot" style="background:var(--blue-mid)"></span>2021</span>
+        <span class="k"><span class="dot" style="background:var(--blue)"></span>2026</span>
+        <span class="k" style="margin-left:auto"><span class="dot" style="background:var(--signal)"></span>Biggest gainer</span>
+        <span class="k"><span class="dot" style="background:var(--brick)"></span>Decliner</span>
+      </div>
+      <div class="src">Source: <b>eMarketer, Backlinko, Demandsage, Pew (2025–26)</b> · U.S. adult / active-user averages</div>
+    </div>
+  </section>
+
+  <!-- SLOPE: YT vs NFLX -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">Figure 02 — The Reversal</div>
+      <h2>YouTube overtakes Netflix</h2>
+      <p class="cap">For the first time, the average account watches more YouTube than Netflix per day — driven by YouTube's move onto the living-room TV. (Global, 20-market panel.)</p>
+    </div>
+    <div class="panel slope">
+      <div id="slope"></div>
+      <div class="src">Source: <b>Digital i — "The YouTube Era: 2025 in Review"</b> · avg daily minutes per account</div>
+    </div>
+  </section>
+
+  <!-- STREAMING SHARE (corrected) -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">Figure 03 — The TV Screen</div>
+      <h2>Share of all U.S. TV time</h2>
+      <p class="cap">YouTube is now the single largest distributor of television viewing — ahead of every subscription service, including Netflix.</p>
+    </div>
+    <div class="panel">
+      <div class="hbar" id="share"></div>
+      <div class="corr"><b>CORRECTED:</b> the source draft listed Netflix ahead of YouTube (21.4% vs 21.1%). Nielsen's Gauge shows the reverse — YouTube 12.7% leads Netflix 9.0% of total TV time. The "21.4%" was broadcast's share, misattributed.</div>
+      <div class="src">Source: <b>Nielsen The Gauge™, Dec 2025</b> · % of total U.S. TV viewing time</div>
+    </div>
+  </section>
+
+  <!-- SHORT FORM -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">Figure 04 — The Algorithm</div>
+      <h2>Short-form ate the feed</h2>
+      <p class="cap">Vertical video reshaped social media into algorithmically-sorted streams. TikTok's recommendation engine drives the overwhelming majority of what users see.</p>
+    </div>
+    <div class="panel">
+      <div class="split">
+        <div class="left">
+          <div id="donut"></div>
+          <div class="donutlab">58% of all<br>social-media time<br>is short-form video</div>
+        </div>
+        <div class="right">
+          <h3>Views driven by the recommendation engine</h3>
+          <div class="hbar" id="algo"></div>
+        </div>
+      </div>
+      <div class="src">Source: <b>industry estimates / platform disclosures, 2025–26</b></div>
+    </div>
+  </section>
+
+  <!-- GENERATIONAL -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">Figure 05 — The Divide</div>
+      <h2>One pool, two worlds</h2>
+      <p class="cap">The same stabilized attention pool fractures sharply by age. Gen Z juggles five-to-six apps a day; Boomers concentrate on legacy feeds.</p>
+    </div>
+    <div class="panel">
+      <div class="gen" id="gen">
+        <div class="g g1"><div class="ghrs" style="color:var(--signal)">3.6<span style="font-size:14px"> h</span></div><div class="col"><div class="barfill"></div></div><div class="gname">Gen Z</div><div class="gsub">5–6 platforms daily</div></div>
+        <div class="g g2"><div class="ghrs" style="color:var(--blue)">2.8<span style="font-size:14px"> h</span></div><div class="col"><div class="barfill"></div></div><div class="gname">Millennials</div><div class="gsub">most paid subscriptions</div></div>
+        <div class="g g3"><div class="ghrs" style="color:var(--muted)">1.5<span style="font-size:14px"> h</span></div><div class="col"><div class="barfill"></div></div><div class="gname">Boomers</div><div class="gsub">legacy feeds, Facebook-led</div></div>
+      </div>
+      <div class="src">Source: <b>Pew Research Center, eMarketer (2025–26)</b> · avg daily social-media time</div>
+    </div>
+  </section>
+
+  <!-- QUADRANT -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">Figure 06 — Specialization</div>
+      <h2>Every platform picked a lane</h2>
+      <p class="cap">With growth gone, platforms survive by owning a defined role — public vs. private, entertainment vs. communication.</p>
+    </div>
+    <div class="panel">
+      <div class="quad" id="quad">
+        <div class="axl t">Entertainment</div>
+        <div class="axl b">Communication</div>
+        <div class="axl l">Private</div>
+        <div class="axl r">Public</div>
+        <div class="node win" style="left:78%;top:20%"><div class="chip">YouTube</div></div>
+        <div class="node win" style="left:70%;top:30%"><div class="chip">TikTok</div></div>
+        <div class="node" style="left:62%;top:40%"><div class="chip">Instagram</div></div>
+        <div class="node" style="left:80%;top:48%"><div class="chip">Netflix</div></div>
+        <div class="node win" style="left:55%;top:58%"><div class="chip">Reddit</div></div>
+        <div class="node fall" style="left:52%;top:48%"><div class="chip">X</div></div>
+        <div class="node fall" style="left:44%;top:42%"><div class="chip">Facebook</div></div>
+        <div class="node" style="left:30%;top:34%"><div class="chip">Snapchat</div></div>
+        <div class="node" style="left:18%;top:62%"><div class="chip">WhatsApp</div></div>
+        <div class="node" style="left:24%;top:74%"><div class="chip">Telegram</div></div>
+        <div class="node" style="left:38%;top:22%"><div class="chip">Pinterest</div></div>
+        <div class="node" style="left:60%;top:78%"><div class="chip">LinkedIn</div></div>
+      </div>
+      <div class="src">Positioning by primary use-case · illustrative</div>
+    </div>
+  </section>
+
+  <!-- SESSION DURATION -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">Figure 07 — Depth vs. Reach</div>
+      <h2>Who holds you longest</h2>
+      <p class="cap">Total daily minutes is one story; a single sitting is another. Private and long-form platforms win the deepest sessions.</p>
+    </div>
+    <div class="panel">
+      <div class="hbar" id="session"></div>
+      <div class="src">Source: <b>global platform metrics, 2025</b> · avg visit duration per session</div>
+    </div>
+  </section>
+
+  <!-- SUBSCRIPTION GAP -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">Figure 08 — The Blind Spot</div>
+      <h2>The $133 they don't see</h2>
+      <p class="cap">Subscription overload hides in plain sight. Americans guess their monthly recurring spend at $86 — the itemized reality is $219.</p>
+    </div>
+    <div class="panel">
+      <div class="gap" id="gap">
+        <div class="gline perceived"><div class="glab">Perceived</div><div class="gtrack"><div class="gfill"></div></div><div class="gval" style="color:var(--blue-mid)">$86</div></div>
+        <div class="gline actual"><div class="glab">Actual</div><div class="gtrack"><div class="gfill"></div></div><div class="gval" style="color:var(--signal)">$219</div></div>
+      </div>
+      <div class="src">Source: <b>C+R Research</b> · avg monthly subscription spend, all categories</div>
+    </div>
+  </section>
+
+  <!-- SCOREBOARD -->
+  <section class="blk">
+    <div class="head">
+      <div class="eyebrow">The Verdict</div>
+      <h2>Winners &amp; losers</h2>
+    </div>
+    <div class="score">
+      <div class="card">
+        <span class="tag w">Biggest winner</span>
+        <div class="who">YouTube</div>
+        <div class="why">Took Netflix's daily-viewing crown, leads Nielsen distributor share, and became the world's largest media company.</div>
+        <div class="metric">$62B revenue · 99.1 min/day · 12.7% of all TV</div>
+      </div>
+      <div class="card">
+        <span class="tag g">Fastest grower</span>
+        <div class="who">Reddit</div>
+        <div class="why">Penetration jumped as users sought authentic, text-based spaces away from manufactured video feeds.</div>
+        <div class="metric">18% → 26% of U.S. adults · +11% time YoY</div>
+      </div>
+      <div class="card">
+        <span class="tag e">Engagement leader</span>
+        <div class="who">TikTok</div>
+        <div class="why">The most time-intensive app on earth, with an algorithm that dictates nearly all of what users watch.</div>
+        <div class="metric">95 min/day global · 85% algo-driven views</div>
+      </div>
+      <div class="card">
+        <span class="tag l">Losing attention</span>
+        <div class="who">Facebook &amp; X</div>
+        <div class="why">The most-deleted apps of the year. Facebook ages into a utility; X faces churn. Netflix lost its rank but stays financially healthy.</div>
+        <div class="metric">16% of users dropped ≥1 app · FB &amp; X led</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>The Zero-Sum Attention Economy · U.S. 2016–2026</span>
+    <span>Figures fact-checked &amp; corrected · Jun 2026</span>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var NS="http://www.w3.org/2000/svg";
+  var css=getComputedStyle(document.documentElement);
+  function c(n){return css.getPropertyValue(n).trim();}
+  function el(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;}
+
+  /* ---- intersection reveal ---- */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("vis"); io.unobserve(e.target);} });
+  },{threshold:.35});
+  ["meter","band","share","algo","gen","gap","session"].forEach(function(id){
+    var n=document.getElementById(id); if(n) io.observe(n);
+  });
+  document.querySelectorAll(".hbar").forEach(function(n){io.observe(n);});
+
+  /* ---- Figure 01: trajectory ---- */
+  (function(){
+    var data=[
+      {n:"YouTube",m:"US adult",v:[24,45,54],tag:"gain"},
+      {n:"TikTok",m:"US adult",v:[0,45.3,53],tag:"gain"},
+      {n:"Instagram",m:"US adult",v:[25,28.5,34],tag:"up"},
+      {n:"Reddit",m:"logged-in",v:[10,19,25],tag:"gain"},
+      {n:"X (Twitter)",m:"active user",v:[23,31,33],tag:"up"},
+      {n:"Snapchat",m:"US adult",v:[26,29,30.5],tag:"up"},
+      {n:"Facebook",m:"US adult",v:[39,33,31],tag:"down"},
+      {n:"WhatsApp",m:"US avg",v:[1,8,12],tag:"up"},
+      {n:"LinkedIn",m:"US adult",v:[3,5,8],tag:"up"}
+    ];
+    var host=document.getElementById("traj");
+    var W=620,L=6,R=58,maxM=100,plotW=W-L-R, H=42;
+    var era=[c("--blue-pale"),c("--blue-mid"),c("--blue")];
+    function x(v){return L+(v/maxM)*plotW;}
+    data.forEach(function(d){
+      var row=document.createElement("div");row.className="row";
+      var nm=document.createElement("div");nm.className="name";
+      nm.innerHTML=d.n+"<span class='meta'>"+d.m+"</span>";
+      var svgWrap=document.createElement("div");
+      var svg=el("svg",{viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"none"});
+      // gridlines
+      [0,25,50,75,100].forEach(function(g){
+        svg.appendChild(el("line",{x1:x(g),y1:6,x2:x(g),y2:H-6,stroke:c("--grid"),"stroke-width":1}));
+      });
+      var cy=H/2;
+      // connector line
+      svg.appendChild(el("line",{x1:x(d.v[0]),y1:cy,x2:x(d.v[2]),y2:cy,stroke:c("--blue-mid"),"stroke-width":2,"stroke-linecap":"round",opacity:.55}));
+      // points (skip zero launch point)
+      d.v.forEach(function(val,i){
+        if(val<=0) return;
+        var col=era[i];
+        if(i===2){ col = d.tag==="gain"?c("--signal"): d.tag==="down"?c("--brick"):c("--blue"); }
+        svg.appendChild(el("circle",{cx:x(val),cy:cy,r:i===2?6:4.5,fill:col,stroke:c("--panel"),"stroke-width":1.5}));
+      });
+      // value label
+      var lbl=el("text",{x:x(d.v[2])+12,y:cy+4,"font-family":"IBM Plex Mono","font-size":13,"font-weight":600,fill:c("--ink")});
+      lbl.textContent=Math.round(d.v[2]);
+      svg.appendChild(lbl);
+      svgWrap.appendChild(svg);
+      row.appendChild(nm);row.appendChild(svgWrap);
+      host.appendChild(row);
+    });
+    // axis
+    var ax=document.createElement("div");ax.className="axis";
+    var spacer=document.createElement("div");
+    var tw=document.createElement("div");tw.style.position="relative";tw.style.height="22px";
+    var asvg=el("svg",{viewBox:"0 0 "+W+" 22",preserveAspectRatio:"none",style:"width:100%;display:block"});
+    [0,25,50,75,100].forEach(function(g){
+      asvg.appendChild(el("line",{x1:x(g),y1:0,x2:x(g),y2:5,stroke:c("--ink"),"stroke-width":1.5}));
+      var t=el("text",{x:x(g),y:18,"font-family":"IBM Plex Mono","font-size":10,fill:c("--muted"),"text-anchor":g===0?"start":(g===100?"end":"middle")});
+      t.textContent=g+(g===100?" min/day":"");
+      asvg.appendChild(t);
+    });
+    tw.appendChild(asvg);
+    ax.appendChild(spacer);ax.appendChild(tw);
+    host.appendChild(ax);
+  })();
+
+  /* ---- Figure 02: slope ---- */
+  (function(){
+    var W=760,H=300,padT=44,padB=46,padL=120,padR=120;
+    var ymin=80,ymax=105, plotH=H-padT-padB;
+    function y(v){return padT+(ymax-v)/(ymax-ymin)*plotH;}
+    var x0=padL, x1=W-padR;
+    var svg=el("svg",{viewBox:"0 0 "+W+" "+H,style:"width:100%;height:auto"});
+    // gridlines
+    [80,85,90,95,100,105].forEach(function(g){
+      svg.appendChild(el("line",{x1:padL,y1:y(g),x2:W-padR,y2:y(g),stroke:c("--grid"),"stroke-width":1}));
+      var t=el("text",{x:padL-12,y:y(g)+4,"font-family":"IBM Plex Mono","font-size":11,fill:c("--muted"),"text-anchor":"end"});
+      t.textContent=g;svg.appendChild(t);
+    });
+    // year labels
+    [["2024",x0],["2025",x1]].forEach(function(p){
+      var t=el("text",{x:p[1],y:H-18,"font-family":"IBM Plex Mono","font-size":12,"font-weight":600,fill:c("--ink"),"text-anchor":"middle"});
+      t.textContent=p[0];svg.appendChild(t);
+    });
+    var series=[
+      {n:"Netflix",a:100.5,b:93.4,col:c("--ink")},
+      {n:"YouTube",a:87.2,b:99.1,col:c("--signal")}
+    ];
+    series.forEach(function(s){
+      var ya=y(s.a),yb=y(s.b);
+      var ln=el("line",{x1:x0,y1:ya,x2:x1,y2:yb,stroke:s.col,"stroke-width":3,"stroke-linecap":"round"});
+      var len=Math.hypot(x1-x0,yb-ya);
+      ln.setAttribute("stroke-dasharray",len);ln.setAttribute("stroke-dashoffset",len);
+      ln.style.transition="stroke-dashoffset 1.3s cubic-bezier(.2,.7,.2,1)";
+      svg.appendChild(ln);
+      svg.appendChild(el("circle",{cx:x0,cy:ya,r:6,fill:s.col}));
+      svg.appendChild(el("circle",{cx:x1,cy:yb,r:7,fill:s.col}));
+      // left label
+      var lt=el("text",{x:x0-16,y:ya+4,"font-family":"Archivo","font-size":15,"font-weight":800,fill:s.col,"text-anchor":"end"});
+      lt.textContent=s.n;svg.appendChild(lt);
+      // value left
+      var lv=el("text",{x:x0-16,y:ya+20,"font-family":"IBM Plex Mono","font-size":11,fill:c("--muted"),"text-anchor":"end"});
+      lv.textContent=s.a.toFixed(1);svg.appendChild(lv);
+      // right value
+      var rv=el("text",{x:x1+16,y:yb+1,"font-family":"Archivo Expanded","font-size":18,"font-weight":900,fill:s.col,"text-anchor":"start"});
+      rv.textContent=s.b.toFixed(1);svg.appendChild(rv);
+      var ru=el("text",{x:x1+16,y:yb+17,"font-family":"IBM Plex Mono","font-size":10,fill:c("--muted"),"text-anchor":"start"});
+      ru.textContent="min/day";svg.appendChild(ru);
+      setTimeout(function(){ln.setAttribute("stroke-dashoffset",0);},250);
+    });
+    document.getElementById("slope").appendChild(svg);
+  })();
+
+  /* ---- hbar builder ---- */
+  function hbar(id,rows,maxV,unit){
+    var host=document.getElementById(id);
+    rows.forEach(function(r){
+      var row=document.createElement("div");row.className="row";
+      var n=document.createElement("div");n.className="bn";n.textContent=r.n;
+      var tr=document.createElement("div");tr.className="track";
+      var f=document.createElement("div");f.className="fill";
+      f.style.background=r.col||c("--ink");
+      f.style.setProperty("--w",(r.v/maxV*100)+"%");
+      tr.appendChild(f);
+      var v=document.createElement("div");v.className="val";v.textContent=r.lab||(r.v+unit);
+      row.appendChild(n);row.appendChild(tr);row.appendChild(v);
+      host.appendChild(row);
+    });
+  }
+  hbar("share",[
+    {n:"YouTube",v:12.7,col:c("--signal"),lab:"12.7%"},
+    {n:"Netflix",v:9.0,col:c("--ink"),lab:"9.0%"},
+    {n:"Prime Video",v:4.3,col:c("--blue"),lab:"4.3%"},
+    {n:"Disney bundle",v:5.4,col:c("--blue"),lab:"5.4%"},
+    {n:"Roku Channel",v:3.0,col:c("--blue-mid"),lab:"3.0%"},
+    {n:"Max",v:1.6,col:c("--blue-mid"),lab:"1.6%"}
+  ],13,"%");
+  hbar("algo",[
+    {n:"TikTok",v:85,col:c("--signal"),lab:"85%"},
+    {n:"Instagram",v:57,col:c("--ink"),lab:"57%"}
+  ],100,"%");
+  hbar("session",[
+    {n:"WhatsApp",v:29.27,col:c("--teal"),lab:"29:16"},
+    {n:"YouTube",v:23.32,col:c("--signal"),lab:"23:19"},
+    {n:"Telegram",v:17.62,col:c("--blue"),lab:"17:37"},
+    {n:"Facebook",v:13.72,col:c("--brick"),lab:"13:43"},
+    {n:"Instagram",v:12.17,col:c("--ink"),lab:"12:10"},
+    {n:"Reddit",v:12.02,col:c("--ink"),lab:"12:01"},
+    {n:"LinkedIn",v:10.67,col:c("--muted"),lab:"10:40"},
+    {n:"TikTok",v:10.50,col:c("--muted"),lab:"10:30"}
+  ],30,"m");
+
+  /* ---- donut 58% ---- */
+  (function(){
+    var W=180,r=70,sw=26,cx=W/2,cy=W/2,C=2*Math.PI*r;
+    var svg=el("svg",{viewBox:"0 0 "+W+" "+W,style:"width:170px;height:170px"});
+    svg.appendChild(el("circle",{cx:cx,cy:cy,r:r,fill:"none",stroke:c("--grid"),"stroke-width":sw}));
+    var arc=el("circle",{cx:cx,cy:cy,r:r,fill:"none",stroke:c("--signal"),"stroke-width":sw,"stroke-linecap":"butt",transform:"rotate(-90 "+cx+" "+cy+")"});
+    arc.setAttribute("stroke-dasharray",C);
+    arc.setAttribute("stroke-dashoffset",C);
+    arc.style.transition="stroke-dashoffset 1.4s cubic-bezier(.2,.7,.2,1)";
+    svg.appendChild(arc);
+    var t=el("text",{x:cx,y:cy+2,"font-family":"Archivo Expanded","font-size":38,"font-weight":900,fill:c("--ink"),"text-anchor":"middle"});
+    t.textContent="58%";svg.appendChild(t);
+    var t2=el("text",{x:cx,y:cy+22,"font-family":"IBM Plex Mono","font-size":10,fill:c("--muted"),"text-anchor":"middle","letter-spacing":"1"});
+    t2.textContent="SHORT-FORM";svg.appendChild(t2);
+    document.getElementById("donut").appendChild(svg);
+    var io2=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){arc.setAttribute("stroke-dashoffset",C*(1-0.58));io2.unobserve(e.target);}});},{threshold:.4});
+    io2.observe(svg);
+  })();
+})();
+</script>
+</body>
+</html>
